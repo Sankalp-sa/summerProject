@@ -19,12 +19,40 @@ const userSchema = new mongoose.Schema({
         type: String,
         required: true
     },
-    chat: [
-        {
-            type: mongoose.Schema.Types.ObjectId,
-            ref: 'Chat'
-        }
-    ]
+    gender: {
+        type: String,
+        required: true,
+        enum: ['Male', 'Female']
+    },
+    dob: {
+        type: Date,
+        required: true
+    },
+    father: {
+        type: String,
+        required: true
+    },
+    mother: {
+        type: String,
+        required: true
+    },
+    phone: {
+        type: String,
+        required: true
+    },
+    Alt_phone: {
+        type: String
+    },
+    address: {
+        type: String,
+        required: true
+    },
+    role: {
+        type: String,
+        required: true,
+        enum: ['Student', 'Admin', 'Faculty'],
+        default: 'Student'
+    }
 });
 
 const User = mongoose.model('User', userSchema);
