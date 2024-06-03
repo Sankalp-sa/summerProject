@@ -13,7 +13,7 @@ export const verifyToken = async (req: Request, res: Response, next: NextFunctio
 
     const data = await jwt.verify(token, process.env.JWT_SECRET);
 
-    req.user = data;
+    req.body = { ...req.body, user: data };
 
     next();
   } catch (error) {
