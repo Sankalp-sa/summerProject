@@ -13,7 +13,9 @@ export const verifyToken = async (req: Request, res: Response, next: NextFunctio
 
     const data = await jwt.verify(token, process.env.JWT_SECRET);
 
-    req.body = { ...req.body, user: data };
+    req.body.userId = data.id
+
+    // console.log(req.body)
 
     next();
   } catch (error) {

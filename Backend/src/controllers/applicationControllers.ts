@@ -4,10 +4,12 @@ import Application from '../models/Application';
 export const sendApplication = async (req: Request, res: Response, next: NextFunction) => {
 
     try {
+        
+        console.log(req.body)
 
-        const { Student_id, ssc_percentage, hsc_percentage, jee_percentile, gujcet_percentile, user } = req.body
+        const { ssc_percentage, hsc_percentage, jee_percentile, gujcet_percentile, user_id } = req.body
 
-        if (!Student_id || !ssc_percentage || !hsc_percentage || !jee_percentile || !gujcet_percentile) {
+        if (!ssc_percentage || !hsc_percentage || !jee_percentile || !gujcet_percentile) {
             return res.status(400).json({
                 message: "Please provide all the details"
             })
@@ -19,7 +21,7 @@ export const sendApplication = async (req: Request, res: Response, next: NextFun
         //write the code to Save the application to the database
 
         const newApplication = new Application({
-            Student_id,
+            Student_id: user_id,
             ssc_percentage,
             hsc_percentage,
             jee_percentile,

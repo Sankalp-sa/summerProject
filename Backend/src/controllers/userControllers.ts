@@ -147,7 +147,9 @@ export const checkUser = async (req: Request, res: Response, next: NextFunction)
 
     try {
 
-        const user = await User.findById(req.body.user.id)
+        console.log(req.body.userId)
+
+        const user = await User.findById(req.body.userId)
 
         if (!user) {
             return res.status(401).json({
