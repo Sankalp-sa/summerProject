@@ -32,6 +32,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         })
 
         const data = await res.json()
+        console.log(data)
 
         if (res.ok) {
             setUser(data)
@@ -48,7 +49,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         // fetch user's cookie
         checkAuth()
 
-    }, [isLoggedIn, user]);
+    }, []);
 
     const login = () => {
         // send token to backend

@@ -8,5 +8,4 @@ const router = Router()
 router.use("/user", userRouter);
 router.use("/chat", chatRouter);
 router.use("/application", applicationRouter);
-
 export default router
