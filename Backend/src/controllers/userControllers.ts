@@ -2,7 +2,6 @@ import { User } from "../models/User.js"
 import { Request, Response, NextFunction } from "express"
 import { hash, compare } from "bcrypt"
 import { createToken } from "../utils/tokenUtils.js"
-import { ok } from "assert"
 
 export const getAllUsers = async (req: Request, res: Response, next: NextFunction) => {
 
@@ -26,7 +25,7 @@ export const userSignUp = async (req: Request, res: Response, next: NextFunction
 
     try {
 
-        const { name, email, username, password } = req.body;
+        const { name, email, username, password, gender, dob, father, mother, phone, Alt_phone, address, role } = req.body;
 
 
         // console.log(name, email, password, username)
@@ -148,7 +147,7 @@ export const checkUser = async (req: Request, res: Response, next: NextFunction)
 
     try {
 
-        const user = await User.findById(req.user.id)
+        const user = await User.findById(req.body.user.id)
 
         if (!user) {
             return res.status(401).json({
