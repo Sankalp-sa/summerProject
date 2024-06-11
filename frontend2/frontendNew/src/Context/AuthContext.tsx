@@ -49,7 +49,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         // fetch user's cookie
         checkAuth()
 
-    }, []);
+    }, [isLoggedIn]);
 
     const login = () => {
         // send token to backend

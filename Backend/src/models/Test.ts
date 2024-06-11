@@ -1,5 +1,3 @@
-import { time } from "console";
-import Question from "./Question";
 import mongoose, { Document, Schema } from 'mongoose';
 
 const testschema = new Schema({
@@ -14,7 +12,7 @@ const testschema = new Schema({
     // date : {type: Date , required : true},
     start_time : {type : Date , required : true},
     end_time : {type : Date , required : true},
-    test_id : {type : String , required : true , unique:true},
+    // test_id : {type : String , required : true , unique:true}, 
 })
 
 const Test = mongoose.model('Test',testschema);

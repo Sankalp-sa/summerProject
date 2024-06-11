@@ -25,7 +25,7 @@ export const userSignUp = async (req: Request, res: Response, next: NextFunction
 
     try {
 
-        const { name, email, username, password, gender, dob, father, mother, phone, Alt_phone, address, role } = req.body;
+        const { name, email, username, password, gender, dob, phone, Alt_phone, address, role } = req.body;
 
 
         // console.log(name, email, password, username)
@@ -44,7 +44,12 @@ export const userSignUp = async (req: Request, res: Response, next: NextFunction
             name,
             email,
             username,
-            password: hashedPassword
+            password: hashedPassword,
+            gender,
+            dob,
+            phone,
+            Alt_phone,
+            address,
         })
 
         await user.save()
@@ -157,6 +162,45 @@ export const checkUser = async (req: Request, res: Response, next: NextFunction)
             })
         }
 
+        return res.status(200).json({
+            ok: true,
+            user: {
+                id: user._id,
+                name: user.name,
+                email: user.email,
+                username: user.username
+            }
+        })
+        
+    } catch (error) {
+        console.log(error)
+        res.status(500).json({
+            message: "Internal Server Error"
+        })
+    }
+
+}
+
+export const checkAdmin = async (req: Request, res: Response, next: NextFunction) => {
+
+    try {
+
+        console.log(req.body.userId)
+
+        const user = await User.findById(req.body.userId)
+
+        if (!user) {
+            return res.status(401).json({
+                message: "Unauthorized"
+            })
+        }
+        
+        if (user.role !== "Admin") {
+            return res.status(403).json({
+                message: "Forbidden"
+            })
+        }
+        
         return res.status(200).json({
             ok: true,
             user: {
