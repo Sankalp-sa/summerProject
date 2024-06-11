@@ -13,5 +13,6 @@ router.use("/user", userRouter);
 router.use("/chat", chatRouter);
 router.use("/application", applicationRouter);
 router.use("/question",Questions);
+router.use("/test",Tests)
 
 export default router
