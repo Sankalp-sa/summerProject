@@ -22,18 +22,10 @@ const userSchema = new mongoose.Schema({
     gender: {
         type: String,
         required: true,
-        enum: ['Male', 'Female']
+        enum: ['male', 'female', 'other']
     },
     dob: {
         type: Date,
-        required: true
-    },
-    father: {
-        type: String,
-        required: true
-    },
-    mother: {
-        type: String,
         required: true
     },
     phone: {
