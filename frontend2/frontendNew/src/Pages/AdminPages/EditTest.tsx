@@ -30,6 +30,7 @@ export default function EditTest() {
     const [date, setDate] = useState<Date>();
     const [edate, setEdate] = useState<Date>();
     const [name, setName] = useState<string>();
+    const [questionArray, setQuestionArray] = useState<string[]>([]);
 
     const { id } = useParams()
 
@@ -61,7 +62,7 @@ export default function EditTest() {
 
         const response = await fetch(`${BACKEND_URL}/api/v1/test/getSingleTest/${id}`, {
             method: "GET",
-            headers: {  
+            headers: {
                 "Content-Type": "application/json",
             }
         })
@@ -73,10 +74,25 @@ export default function EditTest() {
         setDate(new Date(data.data.start_time))
         setEdate(new Date(data.data.end_time))
         setName(data.data.test_name)
+        setQuestionArray(data.data.questionArray)
 
     }
 
-    useEffect(() => {   
+    const getQuestionDetails = async () => {
+
+        const response = await fetch(`${BACKEND_URL}/api/v1/question/viewquestion`, {
+            method: "GET",
+            headers: {
+                "Content-Type": "application/json",
+            }
+        })
+
+        const data = await response.json()
+
+        return data
+    }
+
+    useEffect(() => {
 
         getTestDetails()
 
@@ -105,65 +121,70 @@ export default function EditTest() {
                                         defaultValue={name}
                                     />
                                 </div>
-                                <div className="grid gap-3">
-                                    <Label htmlFor="username">
-                                        Start Time
-                                    </Label>
-                                    <Popover>
-                                        <PopoverTrigger asChild>
-                                            <Button
-                                                variant={"outline"}
-                                                className={cn(
-                                                    "w-[280px] justify-start text-left font-normal",
-                                                    !date && "text-muted-foreground"
-                                                )}
-                                            >
-                                                <CalendarIcon className="mr-2 h-4 w-4" />
-                                                {date ? format(date, "PPP HH:mm:ss") : <span>Pick a date</span>}
-                                            </Button>
-                                        </PopoverTrigger>
-                                        <PopoverContent className="w-auto p-0">
-                                            <Calendar
-                                                mode="single"
-                                                selected={date}
-                                                onSelect={(d: Date | undefined) => handleSelect(d)}
-                                                initialFocus
-                                            />
-                                            <div className="p-3 border-t border-border">
-                                                <TimePickerDemo setDate={setDate} date={date} />
-                                            </div>
-                                        </PopoverContent>
-                                    </Popover>
+                                <div className='grid grid-rows-1 grid-flow-col gap-4'>
+                                    <div className="grid gap-3">
+                                        <Label htmlFor="username">
+                                            Start Time
+                                        </Label>
+                                        <Popover>
+                                            <PopoverTrigger asChild>
+                                                <Button
+                                                    variant={"outline"}
+                                                    className={cn(
+                                                        "w-[280px] justify-start text-left font-normal",
+                                                        !date && "text-muted-foreground"
+                                                    )}
+                                                >
+                                                    <CalendarIcon className="mr-2 h-4 w-4" />
+                                                    {date ? format(date, "PPP HH:mm:ss") : <span>Pick a date</span>}
+                                                </Button>
+                                            </PopoverTrigger>
+                                            <PopoverContent className="w-auto p-0">
+                                                <Calendar
+                                                    mode="single"
+                                                    selected={date}
+                                                    onSelect={(d: Date | undefined) => handleSelect(d)}
+                                                    initialFocus
+                                                />
+                                                <div className="p-3 border-t border-border">
+                                                    <TimePickerDemo setDate={setDate} date={date} />
+                                                </div>
+                                            </PopoverContent>
+                                        </Popover>
+                                    </div>
+                                    <div className="grid gap-3">
+                                        <Label htmlFor="username">
+                                            End Time
+                                        </Label>
+                                        <Popover>
+                                            <PopoverTrigger asChild>
+                                                <Button
+                                                    variant={"outline"}
+                                                    className={cn(
+                                                        "w-[280px] justify-start text-left font-normal",
+                                                        !edate && "text-muted-foreground"
+                                                    )}
+                                                >
+                                                    <CalendarIcon className="mr-2 h-4 w-4" />
+                                                    {edate ? format(edate, "PPP HH:mm:ss") : <span>Pick a date</span>}
+                                                </Button>
+                                            </PopoverTrigger>
+                                            <PopoverContent className="w-auto p-0">
+                                                <Calendar
+                                                    mode="single"
+                                                    selected={edate}
+                                                    onSelect={(d: Date | undefined) => handleEndSelect(d)}
+                                                    initialFocus
+                                                />
+                                                <div className="p-3 border-t border-border">
+                                                    <TimePickerDemo setDate={setEdate} date={edate} />
+                                                </div>
+                                            </PopoverContent>
+                                        </Popover>
+                                    </div>
                                 </div>
                                 <div className="grid gap-3">
-                                    <Label htmlFor="username">
-                                        End Time
-                                    </Label>
-                                    <Popover>
-                                        <PopoverTrigger asChild>
-                                            <Button
-                                                variant={"outline"}
-                                                className={cn(
-                                                    "w-[280px] justify-start text-left font-normal",
-                                                    !edate && "text-muted-foreground"
-                                                )}
-                                            >
-                                                <CalendarIcon className="mr-2 h-4 w-4" />
-                                                {edate ? format(edate, "PPP HH:mm:ss") : <span>Pick a date</span>}
-                                            </Button>
-                                        </PopoverTrigger>
-                                        <PopoverContent className="w-auto p-0">
-                                            <Calendar
-                                                mode="single"
-                                                selected={edate}
-                                                onSelect={(d: Date | undefined) => handleEndSelect(d)}
-                                                initialFocus
-                                            />
-                                            <div className="p-3 border-t border-border">
-                                                <TimePickerDemo setDate={setEdate} date={edate} />
-                                            </div>
-                                        </PopoverContent>
-                                    </Popover>
+                                    <Label htmlFor="name">Questions</Label>
                                 </div>
                             </div>
                         </CardContent>

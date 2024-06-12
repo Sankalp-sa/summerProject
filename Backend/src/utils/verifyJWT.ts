@@ -15,7 +15,7 @@ export const verifyToken = async (req: Request, res: Response, next: NextFunctio
 
     req.body.userId = data.id
 
-    // console.log(req.body)
+    console.log(req.body)
 
     next();
   } catch (error) {
