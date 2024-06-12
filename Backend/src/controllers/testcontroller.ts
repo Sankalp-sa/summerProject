@@ -50,3 +50,30 @@ export const getSingleTest = async (req: Request, res: Response) => {
     console.log(error);
   }
 }
+
+export const deletetest = async (req:Request , res:Response) =>{
+    try{
+      const {id} = req.body;
+      const deleted = Test.findByIdAndDelete(id);
+      return res.status(200).json({message : "Deleted Test successfully"});
+    }
+    catch(error){
+      console.log(error);
+    }
+}
+
+export const updatetest = async  (req:Request , res: Response) => {
+  try{
+    const {id , start_time,end_time, test_name} = req.body;
+    const updated = await Test.findByIdAndUpdate(id,{
+      start_time,
+      end_time,
+      test_name
+
+    });
+    return res.status(200).json({message:  "Updated test successfully"});
+  }
+  catch(error){
+    console.log(error);
+  }
+}
