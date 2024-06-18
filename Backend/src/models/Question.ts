@@ -27,7 +27,7 @@ const questionSchema = new Schema({
   option2 : {type : String , required :true},
   option3 : {type:String  },
   option4 : {type : String },
- correctoption : {type : Number} 
+ correctoption : {type : Number , required : true}, 
 //   options: { type: [optionSchema], required: true, validate: [arrayLimit, 'Options array must contain exactly four options'] },
 });
 

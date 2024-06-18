@@ -1,4 +1,4 @@
-import { Request, Response, NextFunction, response } from "express";
+import { Request, Response, NextFunction } from "express";
 // import Test/ from "../models/Test"
 import Test from "../models/Test";
 import Question from "../models/Question";
@@ -94,4 +94,13 @@ export const updatetest = async  (req:Request , res: Response) => {
   catch(error){
     console.log(error);
   }
+}
+
+export const calculatescore = async (req:Request , res:Response , nex : NextFunction) => {
+   const {question_array, student_id , response_array} = req.body;
+   let score = 0;
+   for(let i=0;i<question_array.length;i++){
+      await Question.findById
+   }
+
 }
