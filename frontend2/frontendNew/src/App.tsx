@@ -7,6 +7,8 @@ import Application from './Pages/Application'
 import AdminRoute from './Routes/AdminRoute'
 import CreateTest from './Pages/AdminPages/CreateTest'
 import EditTest from './Pages/AdminPages/EditTest'
+import EditResponse from './Pages/UserPages/EditResponse'
+import UserRoute from './Routes/UserRoute'
 
 function App() {
 
@@ -20,6 +22,9 @@ function App() {
         <Route path="/admin" element={<AdminRoute />}>
           <Route path="createTest" element={<CreateTest />} />
           <Route path="editTest/:id" element={<EditTest />} />
+        </Route>
+        <Route path="/user" element={<UserRoute />}>
+          <Route path="editResponse" element={<EditResponse />} />
         </Route>
       </Routes>
     </>

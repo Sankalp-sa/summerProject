@@ -1,6 +1,7 @@
 import { Request, Response, NextFunction, response } from "express";
 // import Test/ from "../models/Test"
 import Test from "../models/Test";
+import Question from "../models/Question";
 
 export const createtest = async (
   req: Request,
@@ -64,14 +65,31 @@ export const deletetest = async (req:Request , res:Response) =>{
 
 export const updatetest = async  (req:Request , res: Response) => {
   try{
-    const {id , start_time,end_time, test_name} = req.body;
+    const {id , start_time,end_time, name, questionArray} = req.body;
+
+    console.log(req.body)
+
     const updated = await Test.findByIdAndUpdate(id,{
       start_time,
       end_time,
-      test_name
-
+      test_name: name
     });
-    return res.status(200).json({message:  "Updated test successfully"});
+
+    console.log(updated)
+
+    for(let i=0; i< questionArray.length; i++){
+      
+      await Question.findByIdAndUpdate(questionArray[i]._id,{
+        question: questionArray[i].question,
+        option1: questionArray[i].option1,
+        option2: questionArray[i].option2,
+        option3: questionArray[i].option3,
+        option4: questionArray[i].option4,
+        correctoption: questionArray[i].correctoption
+      })
+    }
+
+    return res.status(200).json({ok: true, message:  "Updated test successfully"});
   }
   catch(error){
     console.log(error);

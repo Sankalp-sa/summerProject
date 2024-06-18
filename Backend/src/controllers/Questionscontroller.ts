@@ -37,7 +37,7 @@ export const createquestion = async (
     option2,
     option3,
     option4,
-    correctoption,
+    correctoption: req.body.correct_option,
   });
 
   const existingquestion = await Question.findOne({ question });
@@ -85,9 +85,11 @@ export const viewquestion = async (
   res: Response,
   next: NextFunction
 ) => {
-  const { id } = req.body;
+  const { id } = req.params;
   const viewques = await Question.findById(id);
-  res.send(viewques);
+  
+  return res.status(200).json(viewques);
+
 };
 
 export const deletequestion = async (
@@ -97,5 +99,12 @@ export const deletequestion = async (
 ) => {
   const { id } = req.body;
   const deleteques = await Question.findByIdAndDelete(id);
-  return res.status(200).json({ message: "Deleted question successfully" });
+
+  await Test.updateMany(
+    {},
+    { $pull: { questionArray: id } },
+    { multi: true }
+  );
+
+  return res.status(200).json({ ok: true, message: "Deleted question successfully" });
 };

@@ -2,13 +2,13 @@ import { userLogin } from './../controllers/userControllers';
 import { Router, Request } from 'express';
 import multer from 'multer'
 import { verifyToken } from '../utils/verifyJWT';
-import { sendApplication } from '../controllers/applicationControllers';
+import { getApplication, sendApplication, updateApplication } from '../controllers/applicationControllers';
 import fs from 'fs'
 
 const storage = multer.diskStorage({
 
     destination: function (req: Request, file: Express.Multer.File, cb: Function) {
-        const path = `./uploads/${req.body.user_id}`
+        const path = `./public/uploads/${req.body.user_id}`
         fs.mkdirSync(path, { recursive: true })
         cb(null, path)
     },
@@ -17,12 +17,27 @@ const storage = multer.diskStorage({
     }
 })
 
-const upload = multer({ storage: storage })
+const fileFilter = (req: Request, file: Express.Multer.File, cb: Function) => {
+    if (!file) {
+    } else {
+        cb(null, true);
+    }
+};
+
+const upload = multer({ 
+    storage: storage,
+    fileFilter: fileFilter
+});
+
 
 const applicationRouter = Router()
 
 // applicationRouter.use(verifyToken)
 
 applicationRouter.post("/send", verifyToken, upload.fields([{name: "id_proof"}, {name: "photo"}]), sendApplication)
+
+applicationRouter.get("/getApplication/:id", verifyToken, getApplication)
+
+applicationRouter.put("/updateApplication/:id", verifyToken, upload.fields([{name: "id_proof"}, {name: "photo"}]), updateApplication)
 
 export default applicationRouter
