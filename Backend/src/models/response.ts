@@ -50,6 +50,6 @@ const responseSchema = new Schema<IResponse>({
 responseSchema.index({ testId: 1, studentId: 1 }, { unique: true });
 
 // Create the model
-const Response: Model<IResponse> = mongoose.model<IResponse>('Response', responseSchema);
+const StudentResponse: Model<IResponse> = mongoose.model<IResponse>('StudentResponse', responseSchema);
 
-export default Response;
+export default StudentResponse;

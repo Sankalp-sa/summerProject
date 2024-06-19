@@ -9,6 +9,8 @@ import CreateTest from './Pages/AdminPages/CreateTest'
 import EditTest from './Pages/AdminPages/EditTest'
 import EditResponse from './Pages/UserPages/EditResponse'
 import UserRoute from './Routes/UserRoute'
+import Test from './Pages/UserPages/Test'
+import { Toaster } from './components/ui/toaster'
 
 function App() {
 
@@ -25,8 +27,10 @@ function App() {
         </Route>
         <Route path="/user" element={<UserRoute />}>
           <Route path="editResponse" element={<EditResponse />} />
+          <Route path="test" element={<Test />} />
         </Route>
       </Routes>
+      <Toaster />
     </>
   )
 }
