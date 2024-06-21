@@ -32,7 +32,7 @@ export default function Signin() {
   const { login } = useAuth()
 
   // const { socket } = useSocket()
-  const s = useSocket()
+  const { socket } = useSocket()
 
   const navigate = useNavigate()
 
@@ -68,8 +68,8 @@ export default function Signin() {
 
       // make user joinRoom using socke
 
-      if (s !== null){
-        s.emit("joinRoom", data.id)
+      if (socket !== null){
+        socket.emit("joinRoom", data.id)
       }
       
       login()
@@ -83,9 +83,9 @@ export default function Signin() {
 
   useEffect(() => {
 
-    console.log(s)
+    console.log(socket)
 
-  }, [s])
+  }, [socket])
 
   return (
     <>

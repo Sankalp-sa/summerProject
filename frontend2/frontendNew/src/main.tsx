@@ -8,10 +8,10 @@ import { SocketProvider } from './Context/SocketContext.tsx'
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
   <BrowserRouter>
-    <AuthProvider>
-      <SocketProvider>
+    <SocketProvider>
+      <AuthProvider>
         <App />
-      </SocketProvider>
-    </AuthProvider>
+      </AuthProvider>
+    </SocketProvider>
   </BrowserRouter>
 )

@@ -15,7 +15,7 @@ import { useSocket } from '@/Context/SocketContext';
 
 export default function ViewApplicants() {
 
-    const s = useSocket()
+    const { socket } = useSocket()
 
     const [applicants, setApplicants] = React.useState([]);
     const [selectedApplicants, setSelectedApplicants] = React.useState<string[]>([]);
@@ -46,15 +46,15 @@ export default function ViewApplicants() {
 
     useEffect(() => {
 
-        if (s) {
-            console.log('Socket connected:', s);
+        if (socket) {
+            console.log('Socket connected:', socket);
 
-            s.on("receiveNotification", (data: String) => {
+            socket.on("receiveNotification", (data: String) => {
                 console.log(data);
             });
 
             return () => {
-                s.off("receiveNotification");
+                socket.off("receiveNotification");
             };
         }
     }, [])

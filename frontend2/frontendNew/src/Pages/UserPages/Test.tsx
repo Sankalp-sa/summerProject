@@ -17,6 +17,7 @@ import {
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 import { toast } from "@/components/ui/use-toast"
 import Navbar from "@/components/Navbar"
+import { useAuth } from "@/Context/AuthContext"
 
 // Question schema
 const questionSchema = z.object({
@@ -57,6 +58,9 @@ const formSchema = z.object({
 })
 
 export default function Test() {
+
+    const { user } = useAuth()
+
     const [userAnswers, setUserAnswers] = useState<number[]>(Array(questions.length).fill(-1))
 
     const form = useForm<z.infer<typeof formSchema>>({
