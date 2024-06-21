@@ -1,6 +1,7 @@
 import { BACKEND_URL } from "@/config/config";
 import { createContext, useContext, useEffect, useState } from "react";
 import { useSocket } from "./SocketContext";
+import { CloudFog } from "lucide-react";
 
 type User = {
     name: string;
@@ -22,6 +23,8 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     const [user, setUser] = useState<User | null>(null);
     const [isLoggedIn, setIsLoggedIn] = useState<boolean>(false);
 
+    const { socket } = useSocket()
+
 
     const checkAuth = async () => {
 
@@ -37,6 +40,13 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         console.log(data)
 
         if (res.ok) {
+            
+            console.log()
+
+            if (socket){
+                socket.emit("joinRoom", data.user.id)
+            }
+
             setUser(data)
             setIsLoggedIn(true)
         } else {
@@ -56,7 +66,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     const login = () => {
         // send token to backend
         checkAuth()
-    }    
+    }
 
     const signup = (name: string, email: string, password: string) => {
         // send token to backend

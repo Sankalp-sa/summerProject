@@ -4,25 +4,23 @@ import React, { useEffect } from 'react'
 
 export default function Dashboard() {
 
-  const s  = useSocket()
+  const { socket } = useSocket()
+
+  function receiveNotification(data: string) {
+    console.log(data);
+  }
 
   useEffect(() => {
 
-    console.log(s)
+      console.log('Socket connected:', socket);
+  
+      socket?.on("receiveNotification", receiveNotification);
 
-    if (s) {
-      console.log('Socket connected:', s);
-  
-      s.on("receiveNotification", (data: String) => {
-        console.log("received Notification: " + data);
-      });
-  
       return () => {
-        s.off("receiveNotification");
+        socket?.off("receiveNotification");
       };
-    }
-
-  }, [])
+    
+  }, [socket])
 
   return (
     <>
