@@ -2,8 +2,9 @@ import { userLogin } from './../controllers/userControllers';
 import { Router, Request } from 'express';
 import multer from 'multer'
 import { verifyToken } from '../utils/verifyJWT';
-import { getApplication, sendApplication, updateApplication } from '../controllers/applicationControllers';
+import { getAllApplications, getApplication, sendApplication, updateApplication } from '../controllers/applicationControllers';
 import fs from 'fs'
+import { isAdmin } from '../utils/checkAdmin';
 
 const storage = multer.diskStorage({
 
@@ -39,5 +40,9 @@ applicationRouter.post("/send", verifyToken, upload.fields([{name: "id_proof"}, 
 applicationRouter.get("/getApplication/:id", verifyToken, getApplication)
 
 applicationRouter.put("/updateApplication/:id", verifyToken, upload.fields([{name: "id_proof"}, {name: "photo"}]), updateApplication)
+
+// Admin routes for application processing
+
+applicationRouter.get("/getApplications", verifyToken, isAdmin, getAllApplications)
 
 export default applicationRouter

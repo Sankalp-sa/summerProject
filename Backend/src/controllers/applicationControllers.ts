@@ -1,5 +1,6 @@
 import { Request, Response, NextFunction } from "express";
 import Application from "../models/Application";
+import { User } from "../models/User";
 
 export const sendApplication = async (
   req: Request,
@@ -160,6 +161,40 @@ export const updateApplication = async (
     
     return res.status(200).json({
       message: "Application updated successfully",
+    });
+  } catch (error) {
+    console.log(error);
+
+    return res.status(500).json({
+      message: "Internal Server Error",
+    });
+  }
+};
+
+// get all Applications
+
+export const getAllApplications = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const applications = await Application.find();
+
+    const studentDetails = [];
+
+    for (let i = 0; i < applications.length; i++) {
+      const user = await User.findById(applications[i].Student_id);
+
+      studentDetails.push({
+        student: user,
+        application: applications[i],
+      })
+    }
+
+    return res.status(200).json({
+      ok: true,
+      applications: studentDetails,
     });
   } catch (error) {
     console.log(error);

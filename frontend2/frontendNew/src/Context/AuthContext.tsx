@@ -1,5 +1,6 @@
 import { BACKEND_URL } from "@/config/config";
 import { createContext, useContext, useEffect, useState } from "react";
+import { useSocket } from "./SocketContext";
 
 type User = {
     name: string;
@@ -20,6 +21,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
     const [user, setUser] = useState<User | null>(null);
     const [isLoggedIn, setIsLoggedIn] = useState<boolean>(false);
+
 
     const checkAuth = async () => {
 

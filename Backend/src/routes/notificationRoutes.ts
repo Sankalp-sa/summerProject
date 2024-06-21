@@ -1,5 +1,5 @@
 import {Router} from 'express'
-import { createNotification, deleteNotification, getAllNotifications, updateNotification } from '../controllers/notificationControllers';
+import { createNotification, deleteNotification, getAllNotifications, sendNotification, sendTest, updateNotification } from '../controllers/notificationControllers';
 import { verifyToken } from '../utils/verifyJWT';
 import { isAdmin } from '../utils/checkAdmin';
 
@@ -12,5 +12,9 @@ notificationRouter.post('/createNotification', verifyToken, isAdmin, createNotif
 notificationRouter.put('/updateNotification', updateNotification)
 
 notificationRouter.delete('/deleteNotification', deleteNotification)
+
+notificationRouter.post("/sendNotification", verifyToken, isAdmin, sendNotification)
+
+notificationRouter.post("/sendTest", sendTest)
 
 export default notificationRouter

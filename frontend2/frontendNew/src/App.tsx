@@ -11,6 +11,7 @@ import EditResponse from './Pages/UserPages/EditResponse'
 import UserRoute from './Routes/UserRoute'
 import Test from './Pages/UserPages/Test'
 import { Toaster } from './components/ui/toaster'
+import ViewApplicants from './Pages/AdminPages/ViewApplicants'
 
 function App() {
 
@@ -24,6 +25,7 @@ function App() {
         <Route path="/admin" element={<AdminRoute />}>
           <Route path="createTest" element={<CreateTest />} />
           <Route path="editTest/:id" element={<EditTest />} />
+          <Route path="viewApplicants" element={<ViewApplicants />} />
         </Route>
         <Route path="/user" element={<UserRoute />}>
           <Route path="editResponse" element={<EditResponse />} />

@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useMemo } from 'react'
 import { CircleUser, Menu, Search } from "lucide-react"
 import { Link } from 'react-router-dom'
 import { Input } from "@/components/ui/input"
