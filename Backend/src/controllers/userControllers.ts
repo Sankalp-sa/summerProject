@@ -2,6 +2,7 @@ import { User } from "../models/User.js"
 import { Request, Response, NextFunction } from "express"
 import { hash, compare } from "bcrypt"
 import { createToken } from "../utils/tokenUtils.js"
+import { pending_appli_noti } from "./notificationControllers.js"
 
 export const getAllUsers = async (req: Request, res: Response, next: NextFunction) => {
 
@@ -106,6 +107,8 @@ export const userLogin = async (req: Request, res: Response, next: NextFunction)
                 message: "Invalid password"
             })
         }
+
+        pending_appli_noti(req,res);
 
         res.clearCookie("auth_token", {
             path: "/",

@@ -10,14 +10,22 @@ export default function Dashboard() {
     console.log(data);
   }
 
+  function pendingnoti(data:string){
+    console.log(data);
+  }
+
+
   useEffect(() => {
 
       console.log('Socket connected:', socket);
   
       socket?.on("receiveNotification", receiveNotification);
+      socket?.on("Pending_applicatio_Notification",pendingnoti);
+      // socket?.on("pending_application_noti",pendin)
 
       return () => {
         socket?.off("receiveNotification");
+        
       };
     
   }, [socket])
