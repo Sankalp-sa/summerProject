@@ -1,7 +1,6 @@
 import { BACKEND_URL } from "@/config/config";
 import { createContext, useContext, useEffect, useState } from "react";
 import { useSocket } from "./SocketContext";
-import { CloudFog } from "lucide-react";
 
 type User = {
     name: string;

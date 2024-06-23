@@ -12,6 +12,7 @@ import UserRoute from './Routes/UserRoute'
 import Test from './Pages/UserPages/Test'
 import { Toaster } from './components/ui/toaster'
 import ViewApplicants from './Pages/AdminPages/ViewApplicants'
+import ViewTests from './Pages/UserPages/ViewTests'
 
 function App() {
 
@@ -29,7 +30,8 @@ function App() {
         </Route>
         <Route path="/user" element={<UserRoute />}>
           <Route path="editResponse" element={<EditResponse />} />
-          <Route path="test" element={<Test />} />
+          <Route path="myTests" element={<ViewTests />} />
+          <Route path="test/:id" element={<Test />} />
         </Route>
       </Routes>
       <Toaster />

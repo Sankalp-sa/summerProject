@@ -15,6 +15,6 @@ notificationRouter.delete('/deleteNotification', deleteNotification)
 
 notificationRouter.post("/sendNotification", verifyToken, isAdmin, sendNotification)
 
-notificationRouter.post("/sendTest", sendTest)
+notificationRouter.post("/sendTest", verifyToken, isAdmin, sendTest)
 
 export default notificationRouter

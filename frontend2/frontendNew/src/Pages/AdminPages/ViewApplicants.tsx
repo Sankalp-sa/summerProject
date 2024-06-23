@@ -9,9 +9,29 @@ import {
     TableHead,
     TableRow,
 } from "@/components/ui/table";
-import React, { Key, useEffect } from 'react';
+import React, { Key, useEffect, useReducer } from 'react';
 import { BACKEND_URL } from '@/config/config';
 import { useSocket } from '@/Context/SocketContext';
+
+import {
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+} from "@/components/ui/select"
+
+import {
+    Dialog,
+    DialogContent,
+    DialogDescription,
+    DialogFooter,
+    DialogHeader,
+    DialogTitle,
+    DialogTrigger,
+} from "@/components/ui/dialog"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
 
 export default function ViewApplicants() {
 
@@ -20,6 +40,11 @@ export default function ViewApplicants() {
     const [applicants, setApplicants] = React.useState([]);
     const [selectedApplicants, setSelectedApplicants] = React.useState<string[]>([]);
     const [selectAll, setSelectAll] = React.useState(false);
+
+    const [tests, setTests] = React.useState([]);
+    const [selectedTest, setSelectedTest] = React.useState<string | React.ChangeEvent<HTMLSelectElement>>(
+        "" as string | React.ChangeEvent<HTMLSelectElement>
+    );
 
     const getAllApplication = async () => {
         const res = await fetch(`${BACKEND_URL}/api/v1/application/getApplications`, {
@@ -78,6 +103,56 @@ export default function ViewApplicants() {
         });
     };
 
+    const getAllTests = async () => {
+
+        const res = await fetch(`${BACKEND_URL}/api/v1/test/getTest`, {
+            method: "GET",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            credentials: "include"
+        });
+
+        const data = await res.json();
+        console.log(data.data);
+
+        if (res.ok) {
+            setTests(data.data);
+        } else {
+            setTests([]);
+        }
+
+    }
+
+    useEffect(() => {
+        getAllTests();
+    }, []);
+
+    const handleSendTest = async () => {
+
+        const res = await fetch(`${BACKEND_URL}/api/v1/notification/sendTest`,
+            {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                credentials: "include",
+                body: JSON.stringify({
+                    userArray: selectedApplicants,
+                    testId: selectedTest
+                })
+            });
+
+        const data = await res.json();
+
+        if (res.ok) {
+            console.log(data);
+        } else {
+            console.log(data);
+        }
+
+    }
+
     return (
         <>
             <div className="flex min-h-screen w-full flex-col bg-muted/40">
@@ -88,7 +163,40 @@ export default function ViewApplicants() {
                             View Applicants
                         </h1>
                         <div className="items-center gap-2 md:ml-auto md:flex">
-                            <Button> Send Test </Button>
+                            <Dialog>
+                                <DialogTrigger asChild>
+                                    <Button>Send Test</Button>
+                                </DialogTrigger>
+                                <DialogContent className="sm:max-w-[425px]">
+                                    <DialogHeader>
+                                        <DialogTitle>Send Test</DialogTitle>
+                                    </DialogHeader>
+                                    <div className="grid gap-4 py-4">
+                                        <div className="grid grid-cols-4 items-center gap-4">
+                                            <Label htmlFor="select">
+                                                Select Test
+                                            </Label>
+                                            <div className='col-span-3'>
+                                                <Select onValueChange={(value) => setSelectedTest(value)}>
+                                                    <SelectTrigger className="w-full">
+                                                        <SelectValue placeholder="Test" />
+                                                    </SelectTrigger>
+                                                    <SelectContent>
+                                                        {tests.map((test: any) => (
+                                                            <SelectItem key={test._id} value={test._id}>
+                                                                {test.test_name}
+                                                            </SelectItem>
+                                                        ))}
+                                                    </SelectContent>
+                                                </Select>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <DialogFooter>
+                                        <Button onClick={handleSendTest}> Send Test </Button>
+                                    </DialogFooter>
+                                </DialogContent>
+                            </Dialog>
                         </div>
                     </div>
                     {applicants.length === 0 ? (

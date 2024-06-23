@@ -1,6 +1,7 @@
 import { Request, Response } from "express";
 import Notification from "../models/Notification";
 import { io } from "../app";
+import StudentResponse from "../models/response";
 
 export const getAllNotifications = async (req: Request, res: Response) => {
   const notifications = Notification.find();
@@ -65,9 +66,20 @@ export const sendNotification = async (req: Request, res: Response) => {
 
 export const sendTest = async (req: Request, res: Response) => {
 
-    const { userArray } = req.body;
+    const { userArray, testId } = req.body;
 
-    // console.log(userArray)
+    console.log(userArray)
+
+    for (let i = 0; i < userArray.length; i++) {
+
+      const newResponse = new StudentResponse({
+        studentId: userArray[i],
+        testId,
+      });
+
+      await newResponse.save();
+
+    }
 
     userArray.forEach((userId: string) => {
         io.to(userId).emit("receiveNotification", "Test Notification");

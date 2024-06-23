@@ -11,6 +11,7 @@ interface IResponse extends Document {
   }[];
   createdAt?: Date;
   updatedAt?: Date;
+  given: Boolean;
 }
 
 // Define the response schema
@@ -27,21 +28,21 @@ const responseSchema = new Schema<IResponse>({
   },
   score: {
     type: Number,
-    required : true,
   },
   responses: [{
     questionId: {
       type: Schema.Types.ObjectId,
-      required: true,
       ref: 'Question'
     },
     answer: {
       type: Number,
-      required: true
     }
   }],
+  given: {
+    type: Boolean,
+    default: false
+  }
   
-
 }, {
   timestamps: true
 });
