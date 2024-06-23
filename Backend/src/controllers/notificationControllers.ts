@@ -1,6 +1,9 @@
-import { Request, Response } from "express";
+import { getApplication } from './applicationControllers';
+// import { deNotification } from './notificationControllers';
+import { NextFunction, Request, Response } from "express";
 import Notification from "../models/Notification";
 import { io } from "../app";
+import Application from "../models/Application";
 import StudentResponse from "../models/response";
 
 export const getAllNotifications = async (req: Request, res: Response) => {
@@ -87,4 +90,24 @@ export const sendTest = async (req: Request, res: Response) => {
 
     res.status(200).send("Notification sent");
 
+}
+ 
+export const pending_appli_noti = async (req:Request , res:Response) => {
+  const {id} = req.body;
+
+  const findid = await Application.findOne({Student_id:id});
+  console.log(findid);
+  if(findid){
+      res.status(200).json("Dont send notification");
+  }
+  else{
+    
+      io.to(id).emit("Pending_applicatio_Notification","Your apllication is remaining , please fill it");
+      res.status(200).json("Notification sent");
+    
+  }
+
+  // res.status(200).json({
+  //   message : "Send deeNotification successfully";
+  // })
 }
