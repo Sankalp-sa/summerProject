@@ -3,6 +3,7 @@ import { Request, Response, NextFunction } from "express";
 import Test from "../models/Test";
 import Question from "../models/Question";
 import StudentResponse from "../models/response";
+import { io } from "../app";
 
 export const createtest = async (
   req: Request,
@@ -182,3 +183,19 @@ export const getUserTests = async (req: Request, res: Response) => {
     console.log(error);
   }
 };
+
+export const sorted_student = async(req:Request , res:Response) => {
+  try{
+    const id = await StudentResponse.find({given:1}).sort({score: -1}).limit(1);
+    for(let i=0;i<id.length;i++){
+          io.to(id[i]._id).emit("Sotlisting_message","Dear student , you are sortlisted , please confirm your seat");
+    }
+    return res.status(200).json({
+      message : id,
+    });
+  }
+  catch(error){
+     console.log(error);
+  }
+  
+}
