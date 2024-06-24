@@ -104,7 +104,9 @@ export const updatetest = async (req: Request, res: Response) => {
 
     // update the score of the students who had given the test
 
-    const students = await StudentResponse.find({ testId: id });
+    const students = await StudentResponse.find({ testId: id, given: true});
+
+    console.log(students)
 
     for (let i = 0; i < students.length; i++) {
       let marks = 0;
@@ -120,7 +122,9 @@ export const updatetest = async (req: Request, res: Response) => {
           }
         }
       }
-    
+
+      console.log(marks);
+
       students[i].score = marks;
 
       await students[i].save();
