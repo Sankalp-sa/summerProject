@@ -51,8 +51,8 @@ interface Question {
 
 export default function EditTest() {
 
-    const [date, setDate] = useState<Date>();
-    const [edate, setEdate] = useState<Date>();
+    const [date, setDate] = useState<Date>(new Date("2022-01-01T00:00:00.000Z"));
+    const [edate, setEdate] = useState<Date>(new Date("2022-01-01T00:00:00.000Z"));
     const [name, setName] = useState<string>("");
     const [questionArray, setQuestionArray] = useState<Question[]>([]);
 
@@ -111,13 +111,14 @@ export default function EditTest() {
 
         const data = await response.json();
 
-        setDate(new Date(data.data.start_time));
-        setEdate(new Date(data.data.end_time));
-        setName(data.data.test_name);
+        setName(data?.data?.test?.test_name);
+        setDate(new Date(data?.data?.test?.start_time));
+        setEdate(new Date(data?.data?.test?.end_time));
 
         let ques = [];
-        for (let i = 0; i < data.data.questionArray.length; i++) {
-            let q = await getQuestionDetails(data.data.questionArray[i]);
+
+        for (let i = 0; i < data?.data?.questionArray?.length; i++) {
+            let q = await getQuestionDetails(data?.data?.questionArray[i]);
             ques.push(q);
         }
 
@@ -126,7 +127,7 @@ export default function EditTest() {
 
     useEffect(() => {
         getTestDetails();
-    }, []);
+    }, [id]);
 
     const handleInputChange = (id: string, field: string, value: string | number) => {
         setQuestionArray(prevQuestionArray =>
