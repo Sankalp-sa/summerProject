@@ -117,8 +117,8 @@ export default function EditTest() {
 
         let ques = [];
 
-        for (let i = 0; i < data?.data?.questionArray?.length; i++) {
-            let q = await getQuestionDetails(data?.data?.questionArray[i]);
+        for (let i = 0; i < data?.data?.test?.questionArray?.length; i++) {
+            let q = await getQuestionDetails(data?.data?.test?.questionArray[i]);
             ques.push(q);
         }
 
@@ -241,7 +241,7 @@ export default function EditTest() {
                                         </Label>
                                         <Popover>
                                             <PopoverTrigger asChild>
-                                                <Button
+                                                <Button 
                                                     variant={"outline"}
                                                     className={cn(
                                                         "w-[280px] justify-start text-left font-normal",
@@ -260,7 +260,9 @@ export default function EditTest() {
                                                     initialFocus
                                                 />
                                                 <div className="p-3 border-t border-border">
-                                                    <TimePickerDemo setDate={setDate} date={date} />
+                                                    <TimePickerDemo setDate={setDate as
+                                                    React.Dispatch<React.SetStateAction<Date>>
+                                                    } date={date} />
                                                 </div>
                                             </PopoverContent>
                                         </Popover>
@@ -290,7 +292,9 @@ export default function EditTest() {
                                                     initialFocus
                                                 />
                                                 <div className="p-3 border-t border-border">
-                                                    <TimePickerDemo setDate={setEdate} date={edate} />
+                                                    <TimePickerDemo setDate={setEdate as 
+                                                    React.Dispatch<React.SetStateAction<Date>>
+                                                    } date={edate} />
                                                 </div>
                                             </PopoverContent>
                                         </Popover>

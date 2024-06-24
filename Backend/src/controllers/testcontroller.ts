@@ -89,6 +89,8 @@ export const updatetest = async (req: Request, res: Response) => {
 
     console.log(updated);
 
+    // update the questions in the test
+
     for (let i = 0; i < questionArray.length; i++) {
       await Question.findByIdAndUpdate(questionArray[i]._id, {
         question: questionArray[i].question,
@@ -100,9 +102,35 @@ export const updatetest = async (req: Request, res: Response) => {
       });
     }
 
+    // update the score of the students who had given the test
+
+    const students = await StudentResponse.find({ testId: id });
+
+    for (let i = 0; i < students.length; i++) {
+      let marks = 0;
+      for (let j = 0; j < questionArray.length; j++) {
+        const i_d = await Question
+          .findById(questionArray[j]._id);
+
+        if (students[i].responses[j].answer != -1 && students[i].responses[j].answer != 0) {
+          if (students[i].responses[j].answer == i_d.correctoption) {
+            marks += 1;
+          } else {
+            marks -= 1;
+          }
+        }
+      }
+    
+      students[i].score = marks;
+
+      await students[i].save();
+
+    }
+
     return res
       .status(200)
       .json({ ok: true, message: "Updated test successfully" });
+
   } catch (error) {
     console.log(error);
   }

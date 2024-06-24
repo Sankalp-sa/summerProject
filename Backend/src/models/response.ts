@@ -7,7 +7,7 @@ interface IResponse extends Document {
   score : Number;
   responses: {
     questionId: mongoose.Types.ObjectId;
-    answer: string;
+    answer: Number;
   }[];
   createdAt?: Date;
   updatedAt?: Date;

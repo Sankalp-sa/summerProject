@@ -77,6 +77,15 @@ export const modifyquestion = async (
     correctoption,
   });
 
+  // update the score of students who had given the above test
+
+  // find the tests who have the above question and update the question
+
+  const tests = await Test.find(
+    { questionArray: { $in: [id] } },
+  );
+
+
   return res.status(200).json({ message: "Question successfully updated" });
 };
 
