@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { Bell, CircleUser, Menu, Search } from "lucide-react"
 import { Link } from 'react-router-dom'
 import { Input } from "@/components/ui/input"
@@ -18,29 +18,37 @@ import { useSocket } from '@/Context/SocketContext'
 export default function Navbar() {
 
     const { isLoggedIn, logout } = useAuth()
+    const { socket } = useSocket()
 
-    const {socket} = useSocket()
-
-    const [notification, setNotification] = useState<string[]>([])
+    const [notification, setNotification] = useState<string[]>(() => {
+        // Retrieve notifications from local storage if available
+        const savedNotifications = localStorage.getItem('notifications')
+        return savedNotifications ? JSON.parse(savedNotifications) : []
+    })
 
     useEffect(() => {
-
         if (socket) {
-            console.log('Socket connected:', socket);
+            console.log('Socket connected:', socket)
 
             socket.on("receiveNotification", (data: string) => {
-                console.log("notification Data "+ data)
-                setNotification((notification) => ([...notification, data]))
-            });
-
-            // get the notification from a particular room 
-
+                console.log("notification Data " + data)
+                setNotification((prevNotifications) => {
+                    const updatedNotifications = [...prevNotifications, data]
+                    localStorage.setItem('notifications', JSON.stringify(updatedNotifications)) // Save to local storage
+                    return updatedNotifications
+                })
+            })
 
             return () => {
-                socket.off("receiveNotification");
-            };
+                socket.off("receiveNotification")
+            }
         }
     }, [socket])
+
+    const clearNotifications = () => {
+        setNotification([])
+        localStorage.removeItem('notifications')
+    }
 
     return (
         <header className="sticky top-0 flex h-16 items-center gap-4 bg-background border-b px-4 md:px-6">
@@ -64,7 +72,6 @@ export default function Navbar() {
                 >
                     Chat
                 </Link>
-
             </nav>
             <Sheet>
                 <SheetTrigger asChild>
@@ -122,7 +129,10 @@ export default function Navbar() {
                                 </Button>
                             </DropdownMenuTrigger>
                             <DropdownMenuContent align="end">
-                                <DropdownMenuLabel>Notification</DropdownMenuLabel>
+                                <DropdownMenuLabel>
+                                    Notification
+                                    <Button variant="link" onClick={clearNotifications} className="ml-2 text-sm text-red-500">Clear</Button>
+                                </DropdownMenuLabel>
                                 <DropdownMenuSeparator />
                                 {notification.map((n: string, i: number) => (
                                     <DropdownMenuItem key={i}>{n}</DropdownMenuItem>

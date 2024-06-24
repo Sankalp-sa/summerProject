@@ -83,7 +83,9 @@ export const sendTest = async (req: Request, res: Response) => {
     io.to(userId).emit("receiveNotification", "Test Notification");
   });
 
-  res.status(200).send("Notification sent");
+  res.status(200).send({
+    message: "Test sent",
+  });
 };
 
 export const pending_appli_noti = async (req: Request, res: Response) => {
