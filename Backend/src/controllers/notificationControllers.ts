@@ -96,7 +96,7 @@ export const pending_appli_noti = async (req:Request , res:Response) => {
   const {id} = req.body;
 
   const findid = await Application.findOne({Student_id:id});
-  console.log(findid);
+  // console.log(findid);
   if(findid){
       res.status(200).json("Dont send notification");
   }

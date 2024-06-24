@@ -108,7 +108,7 @@ export const userLogin = async (req: Request, res: Response, next: NextFunction)
             })
         }
 
-        pending_appli_noti(req,res);
+        // pending_appli_noti(req,res);
 
         res.clearCookie("auth_token", {
             path: "/",
