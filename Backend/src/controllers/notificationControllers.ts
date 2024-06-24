@@ -1,4 +1,4 @@
-import { getApplication } from './applicationControllers';
+import { getApplication } from "./applicationControllers";
 // import { deNotification } from './notificationControllers';
 import { NextFunction, Request, Response } from "express";
 import Notification from "../models/Notification";
@@ -7,7 +7,7 @@ import Application from "../models/Application";
 import StudentResponse from "../models/response";
 
 export const getAllNotifications = async (req: Request, res: Response) => {
-  const notifications = Notification.find();
+  const notifications = await Notification.find();
 
   res.status(200).json({
     notifications,
@@ -60,54 +60,55 @@ export const deleteNotification = async (req: Request, res: Response) => {
 };
 
 export const sendNotification = async (req: Request, res: Response) => {
-
   const { userId, message } = req.body;
   io.to(userId).emit("receiveNotification", message);
   res.status(200).send("Notification sent");
-
 };
 
 export const sendTest = async (req: Request, res: Response) => {
+  const { userArray, testId } = req.body;
 
-    const { userArray, testId } = req.body;
+  console.log(userArray);
 
-    console.log(userArray)
-
-    for (let i = 0; i < userArray.length; i++) {
-
-      const newResponse = new StudentResponse({
-        studentId: userArray[i],
-        testId,
-      });
-
-      await newResponse.save();
-
-    }
-
-    userArray.forEach((userId: string) => {
-        io.to(userId).emit("receiveNotification", "Test Notification");
+  for (let i = 0; i < userArray.length; i++) {
+    const newResponse = new StudentResponse({
+      studentId: userArray[i],
+      testId,
     });
 
-    res.status(200).send("Notification sent");
-
-}
- 
-export const pending_appli_noti = async (req:Request , res:Response) => {
-  const {id} = req.body;
-
-  const findid = await Application.findOne({Student_id:id});
-  console.log(findid);
-  if(findid){
-      res.status(200).json("Dont send notification");
-  }
-  else{
-    
-      io.to(id).emit("Pending_applicatio_Notification","Your apllication is remaining , please fill it");
-      res.status(200).json("Notification sent");
-    
+    await newResponse.save();
   }
 
-  // res.status(200).json({
-  //   message : "Send deeNotification successfully";
-  // })
-}
+  userArray.forEach((userId: string) => {
+    io.to(userId).emit("receiveNotification", "Test Notification");
+  });
+
+  res.status(200).send("Notification sent");
+};
+
+export const pending_appli_noti = async (req: Request, res: Response) => {
+  const { id } = req.body;
+
+  try {
+    const findid = await Application.findOne({ Student_id: id });
+    console.log(findid);
+
+    if (!findid) {
+      io.to(id).emit("Pending_application_Notification", "Your application is remaining, please fill it");
+    }
+
+    // Send the response only once after the above operations
+    res.status(200).json({
+      message: "Send Notification successfully",
+    });
+  } catch (error) {
+    if (!res.headersSent) {
+      res.status(500).json({
+        message: "Internal Server Error",
+        error: error.message,
+      });
+    } else {
+      console.error('Error after response sent:', error);
+    }
+  }
+};

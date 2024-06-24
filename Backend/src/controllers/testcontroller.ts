@@ -43,11 +43,22 @@ export const getTests = async (req: Request, res: Response) => {
 
 export const getSingleTest = async (req: Request, res: Response) => {
   try {
-    const test = await Test.findById(req.params.id);
-    res.status(200).json({
+    let test = await Test.findById(req.params.id);
+
+    let Questions = []
+
+    for(let i=0; i<test.questionArray.length; i+=1){
+
+      const question = await Question.findById(test.questionArray[i]);
+
+      Questions.push(question)
+    }
+
+    return res.status(200).json({
       message: "Test",
-      data: test,
+      data: {test, Questions},
     });
+
   } catch (error) {
     console.log(error);
   }
@@ -99,7 +110,7 @@ export const updatetest = async (req: Request, res: Response) => {
 export const calculatescore = async (
   req: Request,
   res: Response,
-  nex: NextFunction
+  next: NextFunction
 ) => {
   try {
     const { student, testid, question_array } = req.body;
@@ -107,7 +118,7 @@ export const calculatescore = async (
     let marks = 0;
     for (let i = 0; i < question_array.length; i++) {
       const i_d = await Question.findById(question_array[i].questionId);
-      if (question_array[i].answer != -1) {
+      if (question_array[i].answer != -1 && question_array[i].answer != 0) {
         if (question_array[i].answer == i_d.correctoption) {
           marks += 1;
         } else {
@@ -117,21 +128,35 @@ export const calculatescore = async (
     }
     console.log(student, testid, question_array);
 
-    const new_res = new StudentResponse({
-      testId: testid,
-      studentId: student,
-      score: marks,
-      responses: question_array,
-    });
+    const existingResponse = await StudentResponse.findOne({ testId: testid, studentId: student });
 
-    await new_res.save();
+    if (existingResponse) {
+      existingResponse.score = marks;
+      existingResponse.responses = question_array;
+      existingResponse.given = true;
+      await existingResponse.save();
+    } else {
+      const newResponse = new StudentResponse({
+        testId: testid,
+        studentId: student,
+        score: marks,
+        responses: question_array,
+        given: true,
+      });
+      await newResponse.save();
+    }
+
     return res.status(200).json({
       message: "Score calculated successfully",
     });
   } catch (error) {
     console.log(error);
+    return res.status(500).json({
+      message: "An error occurred while calculating the score",
+    });
   }
 };
+
 
 export const getUserTests = async (req: Request, res: Response) => {
   try {

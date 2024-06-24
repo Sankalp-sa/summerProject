@@ -3,7 +3,7 @@
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
 import { z } from "zod"
-import { useState } from "react"
+import { useEffect, useState } from "react"
 
 import { Button } from "@/components/ui/button"
 import {
@@ -19,6 +19,7 @@ import { toast } from "@/components/ui/use-toast"
 import Navbar from "@/components/Navbar"
 import { useAuth } from "@/Context/AuthContext"
 import { useParams } from "react-router-dom"
+import { BACKEND_URL } from "@/config/config"
 
 // Question schema
 const questionSchema = z.object({
@@ -34,37 +35,17 @@ const questionSchema = z.object({
 type Question = z.infer<typeof questionSchema>
 
 // Sample questions array
-const questions: Question[] = [
-    {
-        question: "What is the capital of France?",
-        option1: "Berlin",
-        option2: "Madrid",
-        option3: "Paris",
-        option4: "Rome",
-        correctOption: 3,
-    },
-    {
-        question: "What is 2 + 2?",
-        option1: "3",
-        option2: "4",
-        option3: "5",
-        option4: "6",
-        correctOption: 2,
-    },
-    // Add more questions as needed
-]
 
 const formSchema = z.object({
     answers: z.array(z.number()),
 })
 
 export default function Test() {
-
     const { user } = useAuth()
-
     const { id } = useParams()
 
-    const [userAnswers, setUserAnswers] = useState<number[]>(Array(questions.length).fill(-1))
+    const [questions, setQuestions] = useState<any>([])
+    const [userAnswers, setUserAnswers] = useState<number[]>([])
 
     const form = useForm<z.infer<typeof formSchema>>({
         resolver: zodResolver(formSchema),
@@ -73,29 +54,82 @@ export default function Test() {
         },
     })
 
-    function onSubmit(data: z.infer<typeof formSchema>) {
+    const fetchQuestions = async () => {
+        const res = await fetch(`${BACKEND_URL}/api/v1/test/getSingleTest/${id}`, {
+            method: "GET",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            credentials: "include",
+        })
+
+        const data = await res.json()
+
         console.log(data)
 
-        toast({
-            title: "You submitted the following values:",
-            description: (
-                <pre className="mt-2 w-[340px] rounded-md bg-slate-950 p-4">
-                    <code className="text-white">{JSON.stringify(data, null, 2)}</code>
-                </pre>
-            ),
-        })
+        setQuestions(data.data.Questions)
+    }
+
+    useEffect(() => {
+        fetchQuestions()
+    }, [])
+
+    async function onSubmit(data: z.infer<typeof formSchema>) {
+        console.log(data)
+
+        const questionArray = data.answers.map((answer, index) => ({
+            questionId: questions[index]._id,
+            answer: answer,
+        }))
+
+        const requestBody = {
+            student: user.user.id, // Adjust this according to your user object structure
+            testid: id,
+            question_array: questionArray,
+        }
+
+        try {
+            const response = await fetch(`${BACKEND_URL}/api/v1/test/calculate_score`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify(requestBody),
+            })
+
+            if (response.ok) {
+                const result = await response.json()
+                toast({
+                    title: "Success",
+                    description: result.message,
+                })
+            } else {
+                const errorResult = await response.json()
+                toast({
+                    title: "Error",
+                    description: errorResult.message,
+                })
+            }
+        } catch (error) {
+            console.error("Error calculating score:", error)
+            toast({
+                title: "Error",
+                description: "An error occurred while calculating the score.",
+            })
+        }
     }
 
     const handleClearAnswer = (index: number) => {
         const updatedAnswers = [...userAnswers]
-        updatedAnswers[index] = -1
+        updatedAnswers[index] = 0
         setUserAnswers(updatedAnswers)
-        form.setValue(`answers.${index}`, -1)
+
+        form.setValue("answers", updatedAnswers)
     }
 
     return (
         <div className="bg-muted/40 min-h-screen">
-        <Navbar />
+            <Navbar />
             <div className="flex flex-col items-center justify-center mt-10 p-4">
                 <h1 className="text-3xl font-bold mb-6">Student Test</h1>
                 <Form {...form}>
