@@ -1,5 +1,5 @@
-import React, { useMemo } from 'react'
-import { CircleUser, Menu, Search } from "lucide-react"
+import React, { useEffect, useMemo, useState } from 'react'
+import { Bell, CircleUser, Menu, Search } from "lucide-react"
 import { Link } from 'react-router-dom'
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
@@ -13,10 +13,34 @@ import {
 } from "@/components/ui/dropdown-menu"
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
 import { useAuth } from '@/Context/AuthContext'
+import { useSocket } from '@/Context/SocketContext'
 
 export default function Navbar() {
 
     const { isLoggedIn, logout } = useAuth()
+
+    const {socket} = useSocket()
+
+    const [notification, setNotification] = useState<string[]>([])
+
+    useEffect(() => {
+
+        if (socket) {
+            console.log('Socket connected:', socket);
+
+            socket.on("receiveNotification", (data: string) => {
+                console.log("notification Data "+ data)
+                setNotification((notification) => ([...notification, data]))
+            });
+
+            // get the notification from a particular room 
+
+
+            return () => {
+                socket.off("receiveNotification");
+            };
+        }
+    }, [socket])
 
     return (
         <header className="sticky top-0 flex h-16 items-center gap-4 bg-background border-b px-4 md:px-6">
@@ -89,22 +113,39 @@ export default function Navbar() {
                     </div>
                 </form>
                 {isLoggedIn ? (
-                    <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                            <Button variant="secondary" size="icon" className="rounded-full">
-                                <CircleUser className="h-5 w-5" />
-                                <span className="sr-only">Toggle user menu</span>
-                            </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end">
-                            <DropdownMenuLabel>My Account</DropdownMenuLabel>
-                            <DropdownMenuSeparator />
-                            <DropdownMenuItem>Settings</DropdownMenuItem>
-                            <DropdownMenuItem>Support</DropdownMenuItem>
-                            <DropdownMenuSeparator />
-                            <DropdownMenuItem onClick={() => logout()}>Logout</DropdownMenuItem>
-                        </DropdownMenuContent>
-                    </DropdownMenu>
+                    <>
+                        <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                                <Button variant="secondary" size="icon">
+                                    <Bell className="h-4 w-4" />
+                                    <span className="sr-only">Toggle Notification</span>
+                                </Button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent align="end">
+                                <DropdownMenuLabel>Notification</DropdownMenuLabel>
+                                <DropdownMenuSeparator />
+                                {notification.map((n: string, i: number) => (
+                                    <DropdownMenuItem key={i}>{n}</DropdownMenuItem>
+                                ))}
+                            </DropdownMenuContent>
+                        </DropdownMenu>
+                        <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                                <Button variant="secondary" size="icon" className="rounded-full">
+                                    <CircleUser className="h-5 w-5" />
+                                    <span className="sr-only">Toggle user menu</span>
+                                </Button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent align="end">
+                                <DropdownMenuLabel>My Account</DropdownMenuLabel>
+                                <DropdownMenuSeparator />
+                                <DropdownMenuItem>Settings</DropdownMenuItem>
+                                <DropdownMenuItem>Support</DropdownMenuItem>
+                                <DropdownMenuSeparator />
+                                <DropdownMenuItem onClick={() => logout()}>Logout</DropdownMenuItem>
+                            </DropdownMenuContent>
+                        </DropdownMenu>
+                    </>
                 ) : (
                     <>
                         <nav className="hidden flex-col gap-6 text-lg font-medium md:flex md:flex-row md:items-center md:gap-5 md:text-sm lg:gap-6">
