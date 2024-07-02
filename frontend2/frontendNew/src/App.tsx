@@ -13,6 +13,9 @@ import Test from './Pages/UserPages/Test'
 import { Toaster } from './components/ui/toaster'
 import ViewApplicants from './Pages/AdminPages/ViewApplicants'
 import ViewTests from './Pages/UserPages/ViewTests'
+import ViewScore from './Pages/UserPages/ViewScore'
+import StartTestPage from './Pages/UserPages/StartTestPage'
+import CodingTestPage from './Pages/UserPages/CodingTestPage'
 
 function App() {
 
@@ -32,6 +35,9 @@ function App() {
           <Route path="editResponse" element={<EditResponse />} />
           <Route path="myTests" element={<ViewTests />} />
           <Route path="test/:id" element={<Test />} />
+          <Route path="viewScore/:id" element={<ViewScore />} />
+          <Route path="startTest/:id" element={<StartTestPage />} />
+          <Route path="codeEditor" element={<CodingTestPage />} />
         </Route>
       </Routes>
       <Toaster />

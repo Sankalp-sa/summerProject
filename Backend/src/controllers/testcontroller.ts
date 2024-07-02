@@ -4,6 +4,7 @@ import Test from "../models/Test";
 import Question from "../models/Question";
 import StudentResponse from "../models/response";
 import { io } from "../app";
+import { User } from '../models/User';
 
 export const createtest = async (
   req: Request,
@@ -11,11 +12,12 @@ export const createtest = async (
   next: NextFunction
 ) => {
   try {
-    const { start_time, end_time, name } = req.body;
+    const { start_time, end_time, name, duration } = req.body;
     const new_test = new Test({
       test_name: name,
       start_time,
       end_time,
+      duration,
     });
     await new_test.save();
 
@@ -68,7 +70,12 @@ export const getSingleTest = async (req: Request, res: Response) => {
 export const deletetest = async (req: Request, res: Response) => {
   try {
     const { id } = req.body;
-    const deleted = Test.findByIdAndDelete(id);
+    const deleted = await Test.findByIdAndDelete(id);
+
+    // also delete the response of users who have given the test
+
+    await StudentResponse.deleteMany({ testId: id });
+
     return res.status(200).json({ message: "Deleted Test successfully" });
   } catch (error) {
     console.log(error);
@@ -114,7 +121,7 @@ export const updatetest = async (req: Request, res: Response) => {
         const i_d = await Question
           .findById(questionArray[j]._id);
 
-        if (students[i].responses[j].answer != -1 && students[i].responses[j].answer != 0) {
+        if (students[i].responses[j]?.answer != -1 && students[i].responses[j]?.answer != 0 && students[i].responses[j]?.answer != undefined && students[i].responses[j]?.answer != null) {
           if (students[i].responses[j].answer == i_d.correctoption) {
             marks += 1;
           } else {
@@ -151,7 +158,7 @@ export const calculatescore = async (
     let marks = 0;
     for (let i = 0; i < question_array.length; i++) {
       const i_d = await Question.findById(question_array[i].questionId);
-      if (question_array[i].answer != -1 && question_array[i].answer != 0) {
+      if (question_array[i].answer != -1 && question_array[i].answer != 0 && question_array[i].answer != undefined && question_array[i].answer != null){
         if (question_array[i].answer == i_d.correctoption) {
           marks += 1;
         } else {
@@ -203,6 +210,7 @@ export const getUserTests = async (req: Request, res: Response) => {
       const currTest = await Test.findById(tests[i].testId);
 
       finalTests.push({
+        response: tests[i],
         test: currTest,
       })
     }
@@ -230,4 +238,98 @@ export const sorted_student = async(req:Request , res:Response) => {
      console.log(error);
   }
   
+}
+
+export const startTest = async (req: Request, res: Response) => {
+  try {
+    const { testId, studentId, startTime } = req.body;
+    
+    const findResponse = await StudentResponse.findOne({ testId, studentId });
+
+    if (findResponse) {
+      findResponse.isStarted = true;
+      findResponse.startTime = startTime;
+      await findResponse.save();
+    } else {
+      const newResponse = new StudentResponse({
+        testId,
+        studentId,
+        isStarted: true,
+      });
+      await newResponse.save();
+    }
+
+    return res.status(200).json({
+      message: "Test started successfully",
+    });
+
+  } catch (error) {
+
+    console.log(error);
+
+    return res.status(500).json({
+      message: "An error occurred while starting the test",
+    });
+  }
+}
+
+// get response of a student
+
+export const getResponse = async (req: Request, res: Response) => {
+  try {
+    const { studentId, testId } = req.query;
+
+    const response = await StudentResponse.find({ studentId, testId });
+
+    return res.status(200).json({
+      message: "Student response",
+      data: response,
+    });
+
+  } catch (error) {
+
+    return res.status(500).json({
+      message: "An error occurred while fetching the response",
+    });
+
+  }
+}
+
+export const getTestWithResponse = async (req: Request, res: Response) => {
+
+  try {
+    const { id } = req.params;
+
+    console.log("Test id here ",id)
+
+    const test:any = await StudentResponse.find({ testId: id }).sort({ score: -1 });
+
+    let testData:any[] = []
+
+    for(let i=0; i<test.length; i++){
+
+      const currTest = await Test.findById(test[i].testId);
+
+      const student = await User.findById(test[i].studentId);
+
+      testData.push({
+        response: test[i],
+        test: currTest,
+        student
+      })
+    }
+
+    return res.status(200).json({
+      message: "Test with response",
+      data: testData,
+    });
+
+  } catch (error) {
+
+    return res.status(500).json({
+      message: "An error occurred while fetching the test with response",
+    });
+
+  }
+
 }

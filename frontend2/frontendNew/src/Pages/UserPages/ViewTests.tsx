@@ -25,6 +25,7 @@ export default function ViewTests() {
 
         const data = await res.json();
         console.log('test', data);
+
         setTests(data.data);
     };
 
@@ -64,33 +65,51 @@ export default function ViewTests() {
         return now.isSameOrAfter(startTime) && now.isBefore(endTime);
     };
 
+    const handleStartTest = async (testId: string) => {
+
+        navigate(`/user/startTest/${testId}`, { state: { studentId: user.user.id } });
+
+    }
+
     return (
-        <div>
+        <div className='bg-muted/40'>
             <Navbar />
             <div style={{ padding: '2% 15%' }}>
                 {tests?.map((t: any, index) => (
                     <div className='mb-10'>
-                    <Card key={t.test?._id}>
-                        <CardHeader>
-                            <CardTitle>Test {index + 1}</CardTitle>
-                        </CardHeader>
-                        <CardContent>
+                        <Card key={t.test._id}>
+                            <CardHeader>
+                                <CardTitle>Test {index + 1}</CardTitle>
+                            </CardHeader>
+                            <CardContent>
                                 <h3>{t.test?.test_name}</h3>
                                 <p>Start Time: {moment(t.test?.start_time).format('YYYY-MM-DD HH:mm:ss')}</p>
                                 <p>End Time: {moment(t.test?.end_time).format('YYYY-MM-DD HH:mm:ss')}</p>
                                 <div className='text-right'>
-                                    {canStartTest(
-                                        (t.test?.start_time),
-                                        (t.test?.end_time)) ? (
-                                        <Button onClick={() => navigate(`/user/test/${t.test._id}`)}>Start Test</Button>
-                                    ) : (
-                                        <p>
-                                            Test will start in {getRemainingTime(t.test?.start_time)}
-                                        </p>
-                                    )}
+                                    {t.response.given ? (
+                                        <Button onClick={() => navigate(`/user/viewScore/${t.test._id}`)}> View Score </Button>
+                                    ) :
+                                        (
+                                            t.response.isStarted ? (
+                                                <Button onClick={() => navigate(`/user/test/${t.test._id}`)}>Continue Test</Button>
+                                            ) :
+                                                (
+                                                    canStartTest(
+                                                        (t.test?.start_time),
+                                                        (t.test?.end_time)) ? (
+                                                        <Button onClick={() => handleStartTest(t.test._id)}>Start Test</Button>
+                                                    ) : (
+                                                        <p>
+                                                            Test will start in {getRemainingTime(t.test?.start_time)}
+                                                        </p>
+                                                    )
+                                                )
+
+                                        )
+                                    }
                                 </div>
-                        </CardContent>
-                    </Card>
+                            </CardContent>
+                        </Card>
                     </div>
                 ))}
             </div>

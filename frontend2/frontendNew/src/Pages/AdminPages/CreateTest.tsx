@@ -44,6 +44,7 @@ export default function CreateTest() {
 
     const [date, setDate] = React.useState<Date>();
     const [edate, setEdate] = React.useState<Date>();
+    const [duration, setDuration] = React.useState<Date>();
     const [name, setName] = React.useState<string>();
     const [tests, setTests] = React.useState([]);
 
@@ -91,7 +92,8 @@ export default function CreateTest() {
             const userData = {
                 name: name,
                 start_time: date,
-                end_time: edate
+                end_time: edate,
+                duration: convertDateToSeconds(duration)
             }
 
             const res = await fetch(`${BACKEND_URL}/api/v1/test/createTest`, {
@@ -172,6 +174,41 @@ export default function CreateTest() {
         }
     }
 
+    // handle delete of the test
+
+    const handleDelete = async (id: string) => {
+
+        try {
+
+            const res = await fetch(`${BACKEND_URL}/api/v1/test/deleteTest`, {
+                method: "DELETE",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({ id }),
+            })
+    
+            console.log(res)
+            
+        } catch (error) {
+
+            console.log(error)
+            
+        }
+
+        getTests()
+
+    }
+
+    const convertDateToSeconds = (date) => {
+        if (!date) return 0;
+    
+        const hours = date.getHours();
+        const minutes = date.getMinutes();
+        const seconds = date.getSeconds();
+    
+        return hours * 3600 + minutes * 60 + seconds;
+    };
 
     return (
         <>
@@ -266,6 +303,12 @@ export default function CreateTest() {
                                                     </div>
                                                 </PopoverContent>
                                             </Popover>
+                                        </div>
+                                        <div className="grid grid-cols-4 items-center gap-4">
+                                            <Label htmlFor="username" className="text-right">
+                                                Duration
+                                            </Label>
+                                            <TimePickerDemo setDate={setDuration} date={duration} />
                                         </div>
                                     </div>
                                     <DialogFooter>
@@ -396,7 +439,7 @@ export default function CreateTest() {
                                                 </Dialog>
                                             </TableCell>
                                             <TableCell className='text-right'>
-                                                <Button variant='destructive'><span className="material-symbols-outlined">
+                                                <Button variant='destructive' onClick={() => handleDelete(test._id)}><span className="material-symbols-outlined">
                                                     delete
                                                 </span></Button>
                                             </TableCell>
