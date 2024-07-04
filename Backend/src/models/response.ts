@@ -1,3 +1,4 @@
+import { startTest } from './../controllers/testcontroller';
 import mongoose, { Document, Model, Schema } from 'mongoose';
 
 // Define the response interface
@@ -12,6 +13,8 @@ interface IResponse extends Document {
   createdAt?: Date;
   updatedAt?: Date;
   given: Boolean;
+  isStarted: Boolean;
+  startTime: Date;
 }
 
 // Define the response schema
@@ -41,8 +44,14 @@ const responseSchema = new Schema<IResponse>({
   given: {
     type: Boolean,
     default: false
-  }
-  
+  },
+  isStarted: {
+    type: Boolean,
+    default: false
+  },
+  startTime: {
+    type: Date
+  },
 }, {
   timestamps: true
 });

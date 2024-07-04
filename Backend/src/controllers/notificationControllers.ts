@@ -71,17 +71,29 @@ export const sendTest = async (req: Request, res: Response) => {
   console.log(userArray);
 
   for (let i = 0; i < userArray.length; i++) {
+    // check if the Student Response already exists
+
+    const response = await StudentResponse.findOne({
+      studentId: userArray[i],
+      testId,
+    });
+
+    if (response) {
+      continue;
+    }
+
     const newResponse = new StudentResponse({
       studentId: userArray[i],
       testId,
     });
 
     await newResponse.save();
-  }
 
-  userArray.forEach((userId: string) => {
-    io.to(userId).emit("receiveNotification", "Test Notification");
-  });
+    io.to(userArray[i]).emit(
+      "receiveNotification",
+      "You have a new test available"
+    );
+  }
 
   res.status(200).send({
     message: "Test sent",
@@ -96,7 +108,10 @@ export const pending_appli_noti = async (req: Request, res: Response) => {
     console.log(findid);
 
     if (!findid) {
-      io.to(id).emit("Pending_application_Notification", "Your application is remaining, please fill it");
+      io.to(id).emit(
+        "Pending_application_Notification",
+        "Your application is remaining, please fill it"
+      );
     }
 
     // Send the response only once after the above operations
@@ -110,7 +125,7 @@ export const pending_appli_noti = async (req: Request, res: Response) => {
         error: error.message,
       });
     } else {
-      console.error('Error after response sent:', error);
+      console.error("Error after response sent:", error);
     }
   }
 };

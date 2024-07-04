@@ -13,6 +13,10 @@ import Test from './Pages/UserPages/Test'
 import { Toaster } from './components/ui/toaster'
 import ViewApplicants from './Pages/AdminPages/ViewApplicants'
 import ViewTests from './Pages/UserPages/ViewTests'
+import ViewScore from './Pages/UserPages/ViewScore'
+import StartTestPage from './Pages/UserPages/StartTestPage'
+import { ViewCodingQuestions } from './Pages/UserPages/ViewCodingQuestions'
+import CodingQuestion from './Pages/UserPages/CodingQuestion'
 
 function App() {
 
@@ -32,6 +36,10 @@ function App() {
           <Route path="editResponse" element={<EditResponse />} />
           <Route path="myTests" element={<ViewTests />} />
           <Route path="test/:id" element={<Test />} />
+          <Route path="viewScore/:id" element={<ViewScore />} />
+          <Route path="startTest/:id" element={<StartTestPage />} />
+          <Route path="codingQuestions" element={<ViewCodingQuestions />} />
+          <Route path="codingQuestion/:id" element={<CodingQuestion />} />
         </Route>
       </Routes>
       <Toaster />
