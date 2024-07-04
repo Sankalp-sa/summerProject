@@ -15,7 +15,8 @@ import ViewApplicants from './Pages/AdminPages/ViewApplicants'
 import ViewTests from './Pages/UserPages/ViewTests'
 import ViewScore from './Pages/UserPages/ViewScore'
 import StartTestPage from './Pages/UserPages/StartTestPage'
-import CodingTestPage from './Pages/UserPages/CodingTestPage'
+import { ViewCodingQuestions } from './Pages/UserPages/ViewCodingQuestions'
+import CodingQuestion from './Pages/UserPages/CodingQuestion'
 
 function App() {
 
@@ -37,7 +38,8 @@ function App() {
           <Route path="test/:id" element={<Test />} />
           <Route path="viewScore/:id" element={<ViewScore />} />
           <Route path="startTest/:id" element={<StartTestPage />} />
-          <Route path="codeEditor" element={<CodingTestPage />} />
+          <Route path="codingQuestions" element={<ViewCodingQuestions />} />
+          <Route path="codingQuestion/:id" element={<CodingQuestion />} />
         </Route>
       </Routes>
       <Toaster />

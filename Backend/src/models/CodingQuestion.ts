@@ -5,11 +5,18 @@ const CodingQuestionSchema = new mongoose.Schema({
     description: { type: String, required: true },
     difficulty: { type: String, enum: ['easy', 'medium', 'hard'] },
     tags: [String],
+    solution: { type: String, required: true },
     testCases: [{
         input: { type: String, required: true },
         output: { type: String, required: true },
     }],
-    createdAt: { type: Date, default: Date.now }
+    createdAt: { type: Date, default: Date.now },
+    variables: [{
+        name: { type: String, required: true },
+        dataType: { type: String, required: true },
+        upperBound: { type: Number },
+        lowerBound: { type: Number },
+    }],
 });
 
 const CodingQuestion = mongoose.model('CodingQuestion', CodingQuestionSchema);

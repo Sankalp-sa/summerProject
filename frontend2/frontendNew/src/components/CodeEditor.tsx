@@ -18,12 +18,18 @@ interface CodeSnippets {
     [key: string]: string;
 }
 
-export default function CodeEditor() {
+interface CodeEditorProps {
+    language: string;
+    setLanguage: (language: string) => void;
+    value: string;
+    setValue: (value: string) => void;
+    onSubmit: () => void;
+}
+
+export default function CodeEditor({ language, setLanguage, value, setValue, onSubmit }: CodeEditorProps) {
 
     const editorRef = useRef();
 
-    const [value, setValue] = useState<string>("");
-    const [language, setLanguage] = useState("javascript");
     const [input, setInput] = useState("");
     const [output, setOutput] = useState("");
 
@@ -38,6 +44,8 @@ export default function CodeEditor() {
 
         try {
 
+            // console.log(value)
+
             const res = await fetch(`${BACKEND_URL}/api/v1/code/runcode/${language}`, {
                 method: 'POST',
                 headers: {
@@ -45,13 +53,13 @@ export default function CodeEditor() {
                 },
                 body: JSON.stringify({ code: value, input: input }),
             });
-            
+
             const data = await res.json();
 
             setOutput(data.run.output); // Assuming the response contains an "output" field
-            
+
         } catch (error) {
-            
+
             console.log(error);
 
         }
@@ -60,7 +68,7 @@ export default function CodeEditor() {
 
     return (
         <div className='p-4'>
-            <div className='mb-5 flex'>
+            <div className='mb-4 flex'>
                 <Select value={language} onValueChange={(value) => {
                     setLanguage(value)
                     setValue((CODE_SNIPPETS as CodeSnippets)[value])
@@ -79,14 +87,17 @@ export default function CodeEditor() {
                         </SelectGroup>
                     </SelectContent>
                 </Select>
-                <Button className='ml-auto' onClick={runCode}>Run</Button>
+                <div className='ml-auto'>
+                    <Button className='me-4' onClick={runCode}>Run</Button>
+                    <Button onClick={onSubmit}>Submit</Button>
+                </div>
             </div>
-            <div className='flex'>
+            <div>
                 <Editor
-                    height="75vh"
+                    height="60vh"
                     width="100%"
                     language={language}
-                    theme='vs-dark' 
+                    theme='vs-dark'
                     onMount={onMount}
                     value={value}
                     onChange={(value: any) => setValue(value)}
@@ -99,16 +110,18 @@ export default function CodeEditor() {
                         contextmenu: false,
                     }}
                 />
-                <div className='ml-4 w-1/2 flex flex-col gap-4'>
-                    <Textarea 
-                        placeholder="Type your input here." 
-                        value={input} 
-                        onChange={(e) => setInput(e.target.value)} 
+                <div className='mt-4 flex flex-row gap-4'>
+                    <Textarea
+                        placeholder="Type your input here."
+                        value={input}
+                        onChange={(e) => setInput(e.target.value)}
+                        className='min-h-48'
                     />
-                    <Textarea 
-                        placeholder="Output will be displayed here." 
-                        value={output} 
-                        readOnly 
+                    <Textarea
+                        placeholder="Output will be displayed here."
+                        value={output}
+                        readOnly
+                        className='min-h-48'
                     />
                 </div>
             </div>

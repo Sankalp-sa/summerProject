@@ -1,16 +1,14 @@
-import { LANGUAGE_VERSIONS } from './../constants/language';
+import { LANGUAGE_VERSIONS } from "./../constants/language";
 // rest of the code
 import { Request, Response } from "express";
 import axios from "axios";
-import { stdin } from 'process';
 
 const API = axios.create({
   baseURL: "https://emkc.org/api/v2/piston",
 });
 
 export const runCodeController = async (req: Request, res: Response) => {
-
-    const { language } = req.params;
+  const { language } = req.params;
 
   const response = await API.post("/execute", {
     language: language,
@@ -25,7 +23,5 @@ export const runCodeController = async (req: Request, res: Response) => {
 
   console.log(response.data);
 
-    res.json(response.data);
-
-
+  res.json(response.data);
 };
