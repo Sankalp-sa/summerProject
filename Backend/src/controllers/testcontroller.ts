@@ -118,8 +118,7 @@ export const updatetest = async (req: Request, res: Response) => {
     for (let i = 0; i < students.length; i++) {
       let marks = 0;
       for (let j = 0; j < questionArray.length; j++) {
-        const i_d = await Question
-          .findById(questionArray[j]._id);
+        const i_d = await Question.findById(questionArray[j]._id);
 
         if (students[i].responses[j]?.answer != -1 && students[i].responses[j]?.answer != 0 && students[i].responses[j]?.answer != undefined && students[i].responses[j]?.answer != null) {
           if (students[i].responses[j].answer == i_d.correctoption) {
