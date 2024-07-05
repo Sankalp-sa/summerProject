@@ -67,7 +67,7 @@ export function ViewCodingQuestions() {
               {questions && questions.map((question:any, index: number) => (
                 <TableRow key={question._id} onClick={() => navigate(`/user/codingQuestion/${question._id}`)} className="hover:cursor-pointer">
                   <TableCell>{index + 1}</TableCell>
-                  <TableCell>{question.status}</TableCell>
+                  <TableCell>{question.status ? question.status : "Not Mentioned"}</TableCell>
                   <TableCell>{question.title}</TableCell>
                   <TableCell className="text-right">{question.difficulty ? question.difficulty : "Not Mentioned"}</TableCell>
                 </TableRow>

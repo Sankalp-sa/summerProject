@@ -13,6 +13,12 @@ import { Button } from './ui/button';
 import { Textarea } from "@/components/ui/textarea";
 import { BACKEND_URL } from '@/config/config';
 import { CODE_SNIPPETS } from '@/Constants/snippet';
+import {
+    Accordion,
+    AccordionContent,
+    AccordionItem,
+    AccordionTrigger,
+} from "@/components/ui/accordion";
 
 interface CodeSnippets {
     [key: string]: string;
@@ -31,7 +37,13 @@ export default function CodeEditor({ language, setLanguage, value, setValue, onS
     const editorRef = useRef();
 
     const [input, setInput] = useState("");
+    const [sampleInput, setSampleInput] = useState("");
     const [output, setOutput] = useState("");
+
+    const [sq, setSq] = useState(false);
+
+    const doc = useRef<any>();
+    const sqRef = useRef<any>();
 
     const onMount = (editor: any) => {
         editorRef.current = editor;
@@ -39,12 +51,11 @@ export default function CodeEditor({ language, setLanguage, value, setValue, onS
     }
 
     const runCode = async () => {
-
         // Run the code
-
         try {
 
-            // console.log(value)
+            setSq(true);
+            setSampleInput(input);
 
             const res = await fetch(`${BACKEND_URL}/api/v1/code/runcode/${language}`, {
                 method: 'POST',
@@ -54,20 +65,19 @@ export default function CodeEditor({ language, setLanguage, value, setValue, onS
                 body: JSON.stringify({ code: value, input: input }),
             });
 
+            setSq(false)
+
             const data = await res.json();
 
             setOutput(data.run.output); // Assuming the response contains an "output" field
 
         } catch (error) {
-
             console.log(error);
-
         }
-
     }
 
     return (
-        <div className='p-4'>
+        <div className='p-4' ref={doc}>
             <div className='mb-4 flex'>
                 <Select value={language} onValueChange={(value) => {
                     setLanguage(value)
@@ -88,43 +98,76 @@ export default function CodeEditor({ language, setLanguage, value, setValue, onS
                     </SelectContent>
                 </Select>
                 <div className='ml-auto'>
-                    <Button className='me-4' onClick={runCode}>Run</Button>
                     <Button onClick={onSubmit}>Submit</Button>
                 </div>
             </div>
             <div>
-                <Editor
-                    height="60vh"
-                    width="100%"
-                    language={language}
-                    theme='vs-dark'
-                    onMount={onMount}
-                    value={value}
-                    onChange={(value: any) => setValue(value)}
-                    defaultValue={(CODE_SNIPPETS as CodeSnippets)[language]}
-                    options={{
-                        fontSize: 16,
-                        minimap: {
-                            enabled: false
-                        },
-                        contextmenu: false,
-                    }}
-                />
-                <div className='mt-4 flex flex-row gap-4'>
-                    <Textarea
-                        placeholder="Type your input here."
-                        value={input}
-                        onChange={(e) => setInput(e.target.value)}
-                        className='min-h-48'
-                    />
-                    <Textarea
-                        placeholder="Output will be displayed here."
-                        value={output}
-                        readOnly
-                        className='min-h-48'
+                <div className='rounded-lg border border-1 border-inherit shadow-sm'>
+                    <Editor
+                        height="60vh"
+                        width="100%"
+                        language={language}
+                        theme='vs-dark'
+                        onMount={onMount}
+                        value={value}
+                        onChange={(value: any) => setValue(value)}
+                        defaultValue={(CODE_SNIPPETS as CodeSnippets)[language]}
+                        options={{
+                            fontSize: 16,
+                            minimap: {
+                                enabled: false
+                            },
+                            contextmenu: false,
+                        }}
+                        className='p-2'
                     />
                 </div>
+                <div className='mt-4 rounded-lg border border-1 border-inherit px-4 shadow-sm'>
+                    <Accordion type="single" collapsible>
+                        <AccordionItem value="item-1">
+                            <AccordionTrigger className='mx-1'>Run custom test case</AccordionTrigger>
+                            <AccordionContent className='m-1'>
+                                <Textarea
+                                    placeholder="Type your input here."
+                                    value={input}
+                                    onChange={(e) => setInput(e.target.value)}
+                                    className='min-h-48'
+                                />
+                                <div className='text-right mt-4'>
+                                    <Button onClick={() => {
+                                        runCode()
+                                    }}>Run</Button>
+                                </div>
+                            </AccordionContent>
+                        </AccordionItem>
+                    </Accordion>
+                </div>
+                <div>
+                    {sq && (
+                        <div className='mt-4 rounded-lg border border-1 border-inherit p-4 shadow-sm' ref={sqRef}>
+                            Submission Queue
+                        </div>
+                    )}
+                    {output && (
+                        <>
+                        {sampleInput && (
+                            <div className='mt-4 rounded-lg border border-1 border-inherit p-4 shadow-sm'>
+                                <h1 className='text-lg font-semibold'>Custom Input</h1>
+                                <pre className="mt-2 w-[340px] rounded-md bg-slate-100 p-4">
+                                    <code>{sampleInput}</code>
+                                </pre>
+                            </div>
+                        )}
+                        <div className='mt-4 rounded-lg border border-1 border-inherit p-4 shadow-sm'>
+                            <h1 className='text-lg font-semibold'>Output</h1>
+                            <pre className="mt-2 w-[340px] rounded-md bg-slate-100 p-4">
+                                <code>{output}</code>
+                            </pre>
+                        </div>
+                        </>
+                    )}
+                </div>
             </div>
-        </div>
+        </div >
     )
 }
