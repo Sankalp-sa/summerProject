@@ -50,7 +50,7 @@ export function ViewCodingQuestions() {
       <main className="flex flex-1 flex-col gap-4 p-4 lg:gap-6 lg:p-6 h-screen mx-12 my-6" style={{ padding: "2% 17%" }}>
         <div className="flex items-center gap-4">
           <h1 className="flex-1 shrink-0 whitespace-nowrap text-xl font-semibold tracking-tight sm:grow-0">
-            Create Test
+            Coding Questions
           </h1>
         </div>
         <div className="rounded-lg border border-1 border-inherit shadow-sm bg-white" x-chunk="dashboard-02-chunk-1">

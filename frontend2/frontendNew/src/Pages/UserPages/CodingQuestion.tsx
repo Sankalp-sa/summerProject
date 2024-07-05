@@ -8,6 +8,7 @@ import CodeEditor from '@/components/CodeEditor'
 import { useParams } from 'react-router-dom'
 import { BACKEND_URL } from '@/config/config';
 import { CODE_SNIPPETS } from '@/Constants/snippet';
+import { toast } from '@/components/ui/use-toast';
 
 export default function CodingQuestion() {
 
@@ -54,6 +55,38 @@ export default function CodingQuestion() {
             },
             body: JSON.stringify({ language, code: value, questionId: id })
         })
+
+        const data = await res.json();
+
+        console.log(data);
+
+        const result = data.data
+
+        let f:number = 0;
+
+        for(let i=0; i<result.testCaseResult.length; i+=1) {
+            
+            if(result.testCaseResult[i].result === "Failed"){
+                f = -1
+                break
+            }
+
+        }
+
+        if(f == -1){
+            toast({
+                variant: "destructive",
+                title: "Some test cases failed try again",
+                description: "Please check your code and try again"
+              });
+        }
+        else{
+            toast({
+                title: "All test cases passed",
+                description: "Congratulations"
+            });
+        }
+
     }
 
     return (
