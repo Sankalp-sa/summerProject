@@ -7,12 +7,13 @@ import {
 import CodeEditor from '@/components/CodeEditor'
 import { useParams } from 'react-router-dom'
 import { BACKEND_URL } from '@/config/config';
+import { CODE_SNIPPETS } from '@/Constants/snippet';
 
 export default function CodingQuestion() {
 
     const { id } = useParams();
 
-    const [value, setValue] = useState<string>("");
+    const [value, setValue] = useState<string>(CODE_SNIPPETS["javascript"]);
     const [language, setLanguage] = useState("javascript");
     const [questionDetails, setQuestionDetails] = useState<any>({})
 
@@ -59,7 +60,7 @@ export default function CodingQuestion() {
         <div>
             <ResizablePanelGroup
                 direction="horizontal"
-                className="min-h-screen rounded-lg border"
+                className="min-h-screen rounded-lg border flex"
             >
                 <ResizablePanel defaultSize={30}>
                     <div className="p-5">
@@ -95,7 +96,7 @@ export default function CodingQuestion() {
                 </ResizablePanel>
                 <ResizableHandle withHandle />
                 <ResizablePanel defaultSize={70}>
-                    <CodeEditor language={language} setLanguage={setLanguage} value={value} setValue={setValue} onSubmit={onSubmit}/>
+                    <CodeEditor language={language} setLanguage={setLanguage} value={value} setValue={setValue} onSubmit={onSubmit} />
                 </ResizablePanel>
             </ResizablePanelGroup>
         </div>

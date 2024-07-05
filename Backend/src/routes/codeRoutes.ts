@@ -3,7 +3,7 @@ import { runCodeController } from '../controllers/CodeControllers';
 
 const codeRouter = Router()
 
-codeRouter.use("/runcode/:language", runCodeController);
+codeRouter.post("/runcode/:language", runCodeController);
 
 
 export default codeRouter  

@@ -62,7 +62,7 @@ export const createCodingQuestionController = async (
   });
 };
 
-export const codeSubmitController = async (req, res) => {
+export const codeSubmitController = async (req: Request, res: Response) => {
   const { language, code, questionId } = req.body;
 
   if (!language || !code || !questionId) {
@@ -92,6 +92,7 @@ export const codeSubmitController = async (req, res) => {
       ],
       stdin: question.testCases[i].input,
     });
+
 
     const expectedOutput = question.testCases[i].output
       .trim()
