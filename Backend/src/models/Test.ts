@@ -1,4 +1,5 @@
 import mongoose, { Document, Schema } from 'mongoose';
+import CodingQuestion from './CodingQuestion';
 
 const testschema = new Schema({
 
@@ -8,7 +9,10 @@ const testschema = new Schema({
         type: Schema.Types.ObjectId,
         ref: 'Question'
       }],
-    
+    Codingtest : {
+       type: Schema.Types.ObjectId,
+       ref:'CodingTest'
+    },
     // date : {type: Date , required : true},
     start_time : {type : Date , required : true},
     end_time : {type : Date , required : true},
