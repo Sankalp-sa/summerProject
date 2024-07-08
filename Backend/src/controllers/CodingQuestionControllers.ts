@@ -1,9 +1,12 @@
-import { Request, Response } from "express";
+import { Request, response, Response } from "express";
 import CodingQuestion from "../models/CodingQuestion";
 
 import axios from "axios";
 import test from "node:test";
 import { LANGUAGE_VERSIONS } from "../constants/language";
+// import StudentResponse from "../models/response";
+import StudentResponse from "../models/response";
+import Application from "../models/Application";
 
 const API = axios.create({
   baseURL: "https://emkc.org/api/v2/piston",
@@ -63,7 +66,14 @@ export const createCodingQuestionController = async (
 };
 
 export const codeSubmitController = async (req: Request, res: Response) => {
-  const { language, code, questionId } = req.body;
+  const { language, code, questionId , testid } = req.body;
+  // const student_id = Application.findById(req.body.userid);
+  const student_id = await StudentResponse.find({student_id:req.body.userId});
+
+  let score = 0;
+
+   
+  // const 
 
   if (!language || !code || !questionId) {
     return res.status(400).json({
@@ -104,6 +114,7 @@ export const codeSubmitController = async (req: Request, res: Response) => {
         input: question.testCases[i].input,
         output: question.testCases[i].output,
         result: "Passed",
+        score : score + 1,
       });
     } else {
       testCaseResult.push({
@@ -115,7 +126,14 @@ export const codeSubmitController = async (req: Request, res: Response) => {
       });
     }
   }
-
+  const studenttest_response = await StudentResponse.findOne({studentId:student_id , testId:testid});
+  for(let i=0;i<studenttest_response.Coding_responses.length;i++){
+      if(studenttest_response.Coding_responses[i].Coding_question==questionId){
+        studenttest_response.Coding_responses[i].CodingQuestion_score = Math.max(studenttest_response.Coding_responses[i].CodingQuestion_score as number , score);
+      }
+  }
+  // const update_marks = await StudentResponse.updateOne({Coding_responses:{}})
+    // const question_id : Studentres
   return res.status(200).json({
     message: "Code submitted successfully",
     data: {

@@ -1,5 +1,6 @@
 import { startTest } from './../controllers/testcontroller';
 import mongoose, { Document, Model, Schema } from 'mongoose';
+// import CodingQuestion from './CodingQuestion';
 
 // Define the response interface
 interface IResponse extends Document {
@@ -9,6 +10,10 @@ interface IResponse extends Document {
   responses: {
     questionId: mongoose.Types.ObjectId;
     answer: Number;
+  }[];
+  Coding_responses:{
+    Coding_question : mongoose.Types.ObjectId;
+    CodingQuestion_score : Number;
   }[];
   createdAt?: Date;
   updatedAt?: Date;
@@ -39,6 +44,16 @@ const responseSchema = new Schema<IResponse>({
     },
     answer: {
       type: Number,
+    }
+  }],
+  Coding_responses: [{
+    Coding_question: {
+      type: Schema.Types.ObjectId,
+      ref: 'CodingQuestion'
+    },
+    CodignQuestion_Score: {
+      type: Number,
+      default : 0,
     }
   }],
   given: {
