@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 import { Button } from "@/components/ui/button"
 import {
     Dialog,
@@ -32,6 +32,69 @@ export default function CreateCodingTest() {
     const [tests, setTests] = React.useState([]);
 
     const navigate = useNavigate();
+
+    const handleAddTest = async () => {
+
+        const res = await fetch(`${BACKEND_URL}/api/v1/codingTest/createCodingtest`, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+                test_name: name,
+                Test_questions: []
+            }),
+        });
+
+        const data = await res.json();
+
+        console.log(data)
+
+        getTests();
+
+    }
+
+    const getTests = async () => {
+
+        const res = await fetch(`${BACKEND_URL}/api/v1/codingTest/getcodingtest`, {
+            method: "GET",
+            headers: {
+                "Content-Type": "application/json",
+            },
+        });
+
+        const data = await res.json();
+
+        if (res.status === 200) {
+            setTests(data.codingtest);
+        } else {
+            console.log(data.message);
+        }
+    }
+
+    useEffect(() => {
+        getTests();
+    }, []);
+
+    const handleDelete = async (id: string) => {
+
+        const res = await fetch(`${BACKEND_URL}/api/v1/codingTest/deletecodingtest`, {
+            method: "DELETE",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+                test_id: id
+            }),
+        });
+
+        const data = await res.json();
+
+        console.log(data);
+
+        getTests();
+
+    }
 
     return (
         <div>
@@ -69,13 +132,13 @@ export default function CreateCodingTest() {
                                         </div>
                                     </div>
                                     <DialogFooter>
-                                        <Button type="submit">Add Test</Button>
+                                        <Button type="submit" onClick={handleAddTest}>Add Test</Button>
                                     </DialogFooter>
                                 </DialogContent>
                             </Dialog>
                         </div>
                     </div>
-                    {tests.length === 0 ? (
+                    {tests?.length === 0 ? (
                         <div className="flex flex-1 items-center justify-center rounded-lg border border-dashed shadow-sm" x-chunk="dashboard-02-chunk-1">
                             <div className="flex flex-col items-center gap-1 text-center">
                                 <h3 className="text-2xl font-bold tracking-tight">
@@ -101,15 +164,15 @@ export default function CreateCodingTest() {
                                 <TableBody>
                                     {tests.map((test: any) => (
                                         <TableRow key={test._id} >
-                                            <TableCell className="font-medium">{test.test_name}</TableCell>
-                                            <TableCell>{test.questionArray.length}</TableCell>
+                                            <TableCell className="font-medium">{test.Test_name}</TableCell>
+                                            <TableCell>{test.Test_questions.length}</TableCell>
                                             <TableCell>
                                                 <Button onClick={() => navigate(`/admin/createCodingQuestion/${test._id}`)}><span className="material-symbols-outlined">
                                                     add
                                                 </span></Button>
                                             </TableCell>
                                             <TableCell className='text-right'>
-                                                <Button variant='destructive'><span className="material-symbols-outlined">
+                                                <Button variant='destructive' onClick={() => handleDelete(test._id)}><span className="material-symbols-outlined">
                                                     delete
                                                 </span></Button>
                                             </TableCell>
@@ -118,7 +181,6 @@ export default function CreateCodingTest() {
                                 </TableBody>
                             </Table>
                         </div>
-
                     )
                     }
                 </main>

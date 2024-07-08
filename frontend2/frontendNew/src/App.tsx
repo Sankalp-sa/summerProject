@@ -19,6 +19,7 @@ import { ViewCodingQuestions } from './Pages/UserPages/ViewCodingQuestions'
 import CodingQuestion from './Pages/UserPages/CodingQuestion'
 import CreateCodingTest from './Pages/AdminPages/CreateCodingTest'
 import CreateCodingQuestion from './Pages/AdminPages/CreateCodingQuestion'
+import AddTestPage from './Pages/AdminPages/AddTestPage'
 
 function App() {
 
@@ -31,6 +32,7 @@ function App() {
         <Route path="/application" element={<Application />} />
         <Route path="/admin" element={<AdminRoute />}>
           <Route path="createTest" element={<CreateTest />} />
+          <Route path="addTest" element={<AddTestPage />} />
           <Route path="editTest/:id" element={<EditTest />} />
           <Route path="viewApplicants" element={<ViewApplicants />} />
           <Route path="createCodingTest" element={<CreateCodingTest />} />

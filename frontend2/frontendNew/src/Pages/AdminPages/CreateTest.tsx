@@ -39,13 +39,18 @@ import {
 import { Textarea } from '@/components/ui/textarea'
 import { useNavigate } from 'react-router-dom'
 
+import {
+    Select,
+    SelectContent,
+    SelectGroup,
+    SelectItem,
+    SelectLabel,
+    SelectTrigger,
+    SelectValue,
+} from "@/components/ui/select"
 
 export default function CreateTest() {
 
-    const [date, setDate] = React.useState<Date>();
-    const [edate, setEdate] = React.useState<Date>();
-    const [duration, setDuration] = React.useState<Date>();
-    const [name, setName] = React.useState<string>();
     const [tests, setTests] = React.useState([]);
 
     const [question, setQuestion] = React.useState<string>("");
@@ -56,64 +61,6 @@ export default function CreateTest() {
     const [correctOption, setCorrectOption] = React.useState<string>("");
 
     const navigate = useNavigate();
-
-    /**
-     * carry over the current time when a user clicks a new day
-     * instead of resetting to 00:00
-     */
-    const handleSelect = (newDay: Date | undefined) => {
-        if (!newDay) return;
-        if (!date) {
-            setDate(newDay);
-            return;
-        }
-        const diff = newDay.getTime() - date.getTime();
-        const diffInDays = diff / (1000 * 60 * 60 * 24);
-        const newDateFull = add(date, { days: Math.ceil(diffInDays) });
-        setDate(newDateFull);
-    };
-
-    const handleEndSelect = (newDay: Date | undefined) => {
-        if (!newDay) return;
-        if (!date) {
-            setDate(newDay);
-            return;
-        }
-        const diff = newDay.getTime() - date.getTime();
-        const diffInDays = diff / (1000 * 60 * 60 * 24);
-        const newDateFull = add(date, { days: Math.ceil(diffInDays) });
-        setEdate(newDateFull);
-    };
-
-    const handleSubmit = async () => {
-
-        try {
-
-            const userData = {
-                name: name,
-                start_time: date,
-                end_time: edate,
-                duration: convertDateToSeconds(duration)
-            }
-
-            const res = await fetch(`${BACKEND_URL}/api/v1/test/createTest`, {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                },
-                body: JSON.stringify(userData),
-            })
-
-            const data = await res.json()
-
-            console.log(data)
-
-        }
-        catch (err) {
-            console.log(err)
-        }
-
-    }
 
     // get all tests
     const getTests = async () => {
@@ -187,28 +134,18 @@ export default function CreateTest() {
                 },
                 body: JSON.stringify({ id }),
             })
-    
+
             console.log(res)
-            
+
         } catch (error) {
 
             console.log(error)
-            
+
         }
 
         getTests()
 
     }
-
-    const convertDateToSeconds = (date) => {
-        if (!date) return 0;
-    
-        const hours = date.getHours();
-        const minutes = date.getMinutes();
-        const seconds = date.getSeconds();
-    
-        return hours * 3600 + minutes * 60 + seconds;
-    };
 
     return (
         <>
@@ -220,102 +157,7 @@ export default function CreateTest() {
                             Create Test
                         </h1>
                         <div className="items-center gap-2 md:ml-auto md:flex">
-                            <Dialog>
-                                <DialogTrigger asChild>
-                                    <Button>Add Test</Button>
-                                </DialogTrigger>
-                                <DialogContent className="sm:max-w-[425px]">
-                                    <DialogHeader>
-                                        <DialogTitle>Create Test</DialogTitle>
-                                        <DialogDescription>
-                                            Add information for test. Click add when you're done.
-                                        </DialogDescription>
-                                    </DialogHeader>
-                                    <div className="grid gap-4 py-4">
-                                        <div className="grid grid-cols-4 items-center gap-4">
-                                            <Label htmlFor="name" className="text-right">
-                                                Name
-                                            </Label>
-                                            <Input
-                                                id="name"
-                                                className="col-span-3"
-                                                placeholder='e.g. "Frontend Developer Test"'
-                                                value={name}
-                                                onChange={(e) => setName(e.target.value)}
-                                            />
-                                        </div>
-                                        <div className="grid grid-cols-4 items-center gap-4">
-                                            <Label htmlFor="username" className="text-right">
-                                                Start Time
-                                            </Label>
-                                            <Popover>
-                                                <PopoverTrigger asChild>
-                                                    <Button
-                                                        variant={"outline"}
-                                                        className={cn(
-                                                            "w-[280px] justify-start text-left font-normal",
-                                                            !date && "text-muted-foreground"
-                                                        )}
-                                                    >
-                                                        <CalendarIcon className="mr-2 h-4 w-4" />
-                                                        {date ? format(date, "PPP HH:mm:ss") : <span>Pick a date</span>}
-                                                    </Button>
-                                                </PopoverTrigger>
-                                                <PopoverContent className="w-auto p-0">
-                                                    <Calendar
-                                                        mode="single"
-                                                        selected={date}
-                                                        onSelect={(d: Date | undefined) => handleSelect(d)}
-                                                        initialFocus
-                                                    />
-                                                    <div className="p-3 border-t border-border">
-                                                        <TimePickerDemo setDate={setDate} date={date} />
-                                                    </div>
-                                                </PopoverContent>
-                                            </Popover>
-                                        </div>
-                                        <div className="grid grid-cols-4 items-center gap-4">
-                                            <Label htmlFor="username" className="text-right">
-                                                End Time
-                                            </Label>
-                                            <Popover>
-                                                <PopoverTrigger asChild>
-                                                    <Button
-                                                        variant={"outline"}
-                                                        className={cn(
-                                                            "w-[280px] justify-start text-left font-normal",
-                                                            !edate && "text-muted-foreground"
-                                                        )}
-                                                    >
-                                                        <CalendarIcon className="mr-2 h-4 w-4" />
-                                                        {edate ? format(edate, "PPP HH:mm:ss") : <span>Pick a date</span>}
-                                                    </Button>
-                                                </PopoverTrigger>
-                                                <PopoverContent className="w-auto p-0">
-                                                    <Calendar
-                                                        mode="single"
-                                                        selected={edate}
-                                                        onSelect={(d: Date | undefined) => handleEndSelect(d)}
-                                                        initialFocus
-                                                    />
-                                                    <div className="p-3 border-t border-border">
-                                                        <TimePickerDemo setDate={setEdate} date={edate} />
-                                                    </div>
-                                                </PopoverContent>
-                                            </Popover>
-                                        </div>
-                                        <div className="grid grid-cols-4 items-center gap-4">
-                                            <Label htmlFor="username" className="text-right">
-                                                Duration
-                                            </Label>
-                                            <TimePickerDemo setDate={setDuration} date={duration} />
-                                        </div>
-                                    </div>
-                                    <DialogFooter>
-                                        <Button type="submit" onClick={handleSubmit}>Add Test</Button>
-                                    </DialogFooter>
-                                </DialogContent>
-                            </Dialog>
+                            <Button onClick={() => navigate("/admin/addTest")}>Add Test</Button>
                         </div>
                     </div>
                     {tests.length === 0 ? (
