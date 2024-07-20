@@ -17,6 +17,7 @@ const testschema = new Schema({
     start_time : {type : Date , required : true},
     end_time : {type : Date , required : true},
     duration : {type : Number , required : true},
+    sampleTest: {type: Boolean, default: false},
     // test_id : {type : String , required : true , unique:true}, 
 })
 

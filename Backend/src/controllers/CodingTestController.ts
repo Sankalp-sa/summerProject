@@ -2,7 +2,6 @@ import { NextFunction,Request,Response } from 'express';
 // import { Request,Response,NextFunction/ } from "openai/_shims/registry.mjs";
 // import CodingQuestion from '../models/CodingQue';
 import CodingTest from '../models/codingTest';
-import { get } from 'axios';
 
 export const getcodingtest = async (req:Request,res:Response,next : NextFunction) => {
     try{

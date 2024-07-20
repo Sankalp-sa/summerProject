@@ -1,3 +1,4 @@
+import Loader from "@/components/Loader";
 import { BACKEND_URL } from "@/config/config";
 import { useAuth } from "@/Context/AuthContext";
 import { useState, useEffect } from "react";
@@ -33,6 +34,6 @@ export default function UserRoute() {
         authCheck();
     }, [user]);
 
-    return ok ? <Outlet /> : "Loading";
+    return ok ? <Outlet /> : <Loader/>;
 }
 

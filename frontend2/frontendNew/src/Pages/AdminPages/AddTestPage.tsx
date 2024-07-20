@@ -30,6 +30,8 @@ export default function AddTestPage() {
     const [duration, setDuration] = React.useState<Date>();
     const [name, setName] = React.useState<string>();
 
+    const [selectedCodingTest, setSelectedCodingTest] = React.useState<string>("");
+
     const [codingTests, setCodingTests] = React.useState([])
 
     const navigate = useNavigate();
@@ -82,7 +84,8 @@ export default function AddTestPage() {
                 name: name,
                 start_time: date,
                 end_time: edate,
-                duration: convertDateToSeconds(duration)
+                duration: convertDateToSeconds(duration),
+                Codingtest: selectedCodingTest
             }
 
             const res = await fetch(`${BACKEND_URL}/api/v1/test/createTest`, {
@@ -232,9 +235,9 @@ export default function AddTestPage() {
                                 <Label htmlFor="coding-test">
                                     Coding Test
                                 </Label>
-                                <Select>
+                                <Select defaultValue={selectedCodingTest} onValueChange={(value) => setSelectedCodingTest(value)}>
                                     <SelectTrigger className="w-[180px]">
-                                        <SelectValue placeholder="Select a fruit" />
+                                        <SelectValue placeholder="Select a Test" />
                                     </SelectTrigger>
                                     <SelectContent>
                                         <SelectGroup>

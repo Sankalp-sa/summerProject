@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react'
-import { Bell, CircleUser, Menu, Search } from "lucide-react"
+import { AppWindow, Bell, CircleUser, Menu, Search } from "lucide-react"
 import { Link } from 'react-router-dom'
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
@@ -14,10 +14,11 @@ import {
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
 import { useAuth } from '@/Context/AuthContext'
 import { useSocket } from '@/Context/SocketContext'
+import { BACKEND_URL } from '@/config/config'
 
 export default function Navbar() {
 
-    const { isLoggedIn, logout } = useAuth()
+    const { isLoggedIn, logout, isAdmin } = useAuth()
     const { socket } = useSocket()
 
     const [notification, setNotification] = useState<string[]>(() => {
@@ -51,27 +52,63 @@ export default function Navbar() {
     }
 
     return (
-        <header className="sticky top-0 flex h-16 items-center gap-4 bg-background border-b px-4 md:px-6">
+        <header className="sticky top-0 flex h-16 items-center gap-4 bg-background border-b px-4 md:px-6 z-20">
             <nav className="hidden flex-col gap-6 text-lg font-medium md:flex md:flex-row md:items-center md:gap-5 md:text-sm lg:gap-6">
                 <Link
-                    to="#"
+                    to="/"
                     className="flex items-center gap-2 text-lg font-semibold md:text-base"
                 >
-                    <img src='https://static.vecteezy.com/system/resources/previews/022/227/351/original/openai-chatgpt-logo-icon-free-png.png' width={100} height={100} />
-                    <span className="sr-only">Acme Inc</span>
+                    <AppWindow className="h-8 w-8" />
                 </Link>
-                <Link
-                    to="#"
-                    className="text-muted-foreground transition-colors hover:text-foreground"
-                >
-                    Dashboard
-                </Link>
-                <Link
-                    to="#"
-                    className="text-muted-foreground transition-colors hover:text-foreground"
-                >
-                    Chat
-                </Link>
+                {!isAdmin ? (
+                    <>
+                        <Link
+                            to="/"
+                            className="text-muted-foreground transition-colors hover:text-foreground"
+                        >
+                            Home
+                        </Link>
+                        <Link
+                            to="/user/myTests"
+                            className="text-muted-foreground transition-colors hover:text-foreground whitespace-nowrap"
+                        >
+                            My Tests
+                        </Link>
+                        <Link
+                            to="/user/sampleTests"
+                            className="text-muted-foreground transition-colors hover:text-foreground whitespace-nowrap"
+                        >
+                            Sample Tests
+                        </Link>
+                        <Link
+                            to="/user/practice"
+                            className="text-muted-foreground transition-colors hover:text-foreground whitespace-nowrap"
+                        >
+                            Practice
+                        </Link>
+                    </>
+                ) : (
+                    <>
+                        <Link
+                            to="/admin/createTest"
+                            className="text-muted-foreground transition-colors hover:text-foreground whitespace-nowrap"
+                        >
+                            Create Test
+                        </Link>
+                        <Link
+                            to="/admin/viewApplicants"
+                            className="text-muted-foreground transition-colors hover:text-foreground whitespace-nowrap"
+                        >
+                            View Applicants
+                        </Link>
+                        <Link
+                            to="/admin/createCodingTest"
+                            className="text-muted-foreground transition-colors hover:text-foreground whitespace-nowrap"
+                        >
+                            Create Coding Test
+                        </Link>
+                    </>
+                )}
             </nav>
             <Sheet>
                 <SheetTrigger asChild>
@@ -87,93 +124,123 @@ export default function Navbar() {
                 <SheetContent side="left">
                     <nav className="grid gap-6 text-lg font-medium">
                         <Link
-                            to="#"
-                            className="flex items-center gap-2 text-lg font-semibold"
+                            to="/"
+                            className="flex items-center gap-2 text-lg font-semibold md:text-base"
                         >
-                            <img src='https://static.vecteezy.com/system/resources/previews/022/227/351/original/openai-chatgpt-logo-icon-free-png.png' width={100} height={100} />
-                            <span className="sr-only">Acme Inc</span>
+                            <AppWindow className="h-8 w-8" />
                         </Link>
-                        <Link
-                            to="#"
-                            className="text-muted-foreground hover:text-foreground"
-                        >
-                            Dashboard
-                        </Link>
-                        <Link
-                            to="#"
-                            className="text-muted-foreground hover:text-foreground"
-                        >
-                            Chat
-                        </Link>
+                        {!isAdmin ? (
+                            <>
+                                <Link
+                                    to="/"
+                                    className="text-muted-foreground transition-colors hover:text-foreground"
+                                >
+                                    Home
+                                </Link>
+                                <Link
+                                    to="/user/myTests"
+                                    className="text-muted-foreground transition-colors hover:text-foreground whitespace-nowrap"
+                                >
+                                    My Tests
+                                </Link>
+                                <Link
+                                    to="/user/sampleTests"
+                                    className="text-muted-foreground transition-colors hover:text-foreground whitespace-nowrap"
+                                >
+                                    Sample Tests
+                                </Link>
+                                <Link
+                                    to="/user/practice"
+                                    className="text-muted-foreground transition-colors hover:text-foreground whitespace-nowrap"
+                                >
+                                    Practice
+                                </Link>
+                            </>
+                        ) : (
+                            <>
+                                <Link
+                                    to="/admin/createTest"
+                                    className="text-muted-foreground transition-colors hover:text-foreground whitespace-nowrap"
+                                >
+                                    Create Test
+                                </Link>
+                                <Link
+                                    to="/admin/viewApplicants"
+                                    className="text-muted-foreground transition-colors hover:text-foreground whitespace-nowrap"
+                                >
+                                    View Applicants
+                                </Link>
+                                <Link
+                                    to="/admin/createCodingTest"
+                                    className="text-muted-foreground transition-colors hover:text-foreground whitespace-nowrap"
+                                >
+                                    Create Coding Test
+                                </Link>
+                            </>
+                        )}
                     </nav>
                 </SheetContent>
             </Sheet>
             <div className="flex w-full items-center gap-4 md:ml-auto md:gap-2 lg:gap-4">
-                <form className="ml-auto flex-1 sm:flex-initial">
-                    <div className="relative">
-                        <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
-                        <Input
-                            type="search"
-                            placeholder="Search products..."
-                            className="pl-8 sm:w-[300px] md:w-[200px] lg:w-[300px]"
-                        />
-                    </div>
-                </form>
-                {isLoggedIn ? (
-                    <>
-                        <DropdownMenu>
-                            <DropdownMenuTrigger asChild>
-                                <Button variant="secondary" size="icon">
-                                    <Bell className="h-4 w-4" />
-                                    <span className="sr-only">Toggle Notification</span>
-                                </Button>
-                            </DropdownMenuTrigger>
-                            <DropdownMenuContent align="end">
-                                <DropdownMenuLabel>
-                                    Notification
-                                    <Button variant="link" onClick={clearNotifications} className="ml-2 text-sm text-red-500">Clear</Button>
-                                </DropdownMenuLabel>
-                                <DropdownMenuSeparator />
-                                {notification.map((n: string, i: number) => (
-                                    <DropdownMenuItem key={i}>{n}</DropdownMenuItem>
-                                ))}
-                            </DropdownMenuContent>
-                        </DropdownMenu>
-                        <DropdownMenu>
-                            <DropdownMenuTrigger asChild>
-                                <Button variant="secondary" size="icon" className="rounded-full">
-                                    <CircleUser className="h-5 w-5" />
-                                    <span className="sr-only">Toggle user menu</span>
-                                </Button>
-                            </DropdownMenuTrigger>
-                            <DropdownMenuContent align="end">
-                                <DropdownMenuLabel>My Account</DropdownMenuLabel>
-                                <DropdownMenuSeparator />
-                                <DropdownMenuItem>Settings</DropdownMenuItem>
-                                <DropdownMenuItem>Support</DropdownMenuItem>
-                                <DropdownMenuSeparator />
-                                <DropdownMenuItem onClick={() => logout()}>Logout</DropdownMenuItem>
-                            </DropdownMenuContent>
-                        </DropdownMenu>
-                    </>
-                ) : (
-                    <>
-                        <nav className="hidden flex-col gap-6 text-lg font-medium md:flex md:flex-row md:items-center md:gap-5 md:text-sm lg:gap-6">
-                            <Link
-                                to="/signin"
-                                className="text-muted-foreground transition-colors hover:text-foreground"
-                            >
-                                Login
-                            </Link>
-                            <Link
-                                to="/signup"
-                                className="text-muted-foreground transition-colors hover:text-foreground"
-                            >
-                                Sign Up
-                            </Link>
-                        </nav>
-                    </>
-                )}
+                <div className='ml-auto'>
+                    {isLoggedIn ? (
+                        <>
+                            <div className='flex gap-4'>
+                                <DropdownMenu>
+                                    <DropdownMenuTrigger asChild>
+                                        <Button variant="secondary" size="icon">
+                                            <Bell className="h-4 w-4" />
+                                            <span className="sr-only">Toggle Notification</span>
+                                        </Button>
+                                    </DropdownMenuTrigger>
+                                    <DropdownMenuContent align="end">
+                                        <DropdownMenuLabel>
+                                            Notification
+                                            <Button variant="link" onClick={clearNotifications} className="ml-2 text-sm text-red-500">Clear</Button>
+                                        </DropdownMenuLabel>
+                                        <DropdownMenuSeparator />
+                                        {notification.map((n: string, i: number) => (
+                                            <DropdownMenuItem key={i}>{n}</DropdownMenuItem>
+                                        ))}
+                                    </DropdownMenuContent>
+                                </DropdownMenu>
+                                <DropdownMenu>
+                                    <DropdownMenuTrigger asChild>
+                                        <Button variant="secondary" size="icon" className="rounded-full">
+                                            <CircleUser className="h-5 w-5" />
+                                            <span className="sr-only">Toggle user menu</span>
+                                        </Button>
+                                    </DropdownMenuTrigger>
+                                    <DropdownMenuContent align="end">
+                                        <DropdownMenuLabel>My Account</DropdownMenuLabel>
+                                        <DropdownMenuSeparator />
+                                        <DropdownMenuItem>Settings</DropdownMenuItem>
+                                        <DropdownMenuItem>Support</DropdownMenuItem>
+                                        <DropdownMenuSeparator />
+                                        <DropdownMenuItem onClick={() => logout()}>Logout</DropdownMenuItem>
+                                    </DropdownMenuContent>
+                                </DropdownMenu>
+                            </div>
+                        </>
+                    ) : (
+                        <>
+                            <nav className="hidden flex-col gap-6 text-lg font-medium md:flex md:flex-row md:items-center md:gap-5 md:text-sm lg:gap-6">
+                                <Link
+                                    to="/signin"
+                                    className="text-muted-foreground transition-colors hover:text-foreground"
+                                >
+                                    Login
+                                </Link>
+                                <Link
+                                    to="/signup"
+                                    className="text-muted-foreground transition-colors hover:text-foreground"
+                                >
+                                    Sign Up
+                                </Link>
+                            </nav>
+                        </>
+                    )}
+                </div>
             </div>
         </header>
     )

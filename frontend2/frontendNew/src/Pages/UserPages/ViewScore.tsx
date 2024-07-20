@@ -92,7 +92,7 @@ export default function ViewScore() {
                                         <TableCell className="hidden sm:table-cell">{r.student.email}</TableCell>
                                         <TableCell className="hidden sm:table-cell">{r.response.score}</TableCell>
                                         <TableCell className="hidden md:table-cell">
-                                            <Badge>{r.response.score >= 40 ? "Passed" : "Failed"}</Badge>
+                                            <Badge>Not available</Badge>
                                         </TableCell>
                                     </TableRow>
                                 ))}
@@ -103,7 +103,7 @@ export default function ViewScore() {
                                         <TableCell className="hidden sm:table-cell">{r.student.email}</TableCell>
                                         <TableCell className="hidden sm:table-cell">{r.response.score}</TableCell>
                                         <TableCell className="hidden md:table-cell">
-                                            <Badge>{r.response.score >= 40 ? "Passed" : "Failed"}</Badge>
+                                            <Badge>Not available</Badge>
                                         </TableCell>
                                     </TableRow>
                                 ))}

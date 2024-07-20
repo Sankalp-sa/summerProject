@@ -73,7 +73,7 @@ export default function Signin() {
       }
       
       login()
-      navigate("/dashboard")
+      navigate("/")
     }
     else {
       console.log(data)

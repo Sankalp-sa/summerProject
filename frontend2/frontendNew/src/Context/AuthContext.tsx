@@ -21,6 +21,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
     const [user, setUser] = useState<User | null>(null);
     const [isLoggedIn, setIsLoggedIn] = useState<boolean>(false);
+    const [isAdmin, setIsAdmin] = useState<boolean>(false);
 
     const { socket } = useSocket()
 
@@ -54,7 +55,29 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         }
     }
 
+    const AdminAuthCheck = async () => {
+            
+        const res = await fetch(`${BACKEND_URL}/api/v1/user/auth-admin-check`, {
+            method: "GET",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            credentials: "include"
+        })
 
+        console.log(res)
+
+        if (res && res.ok) {
+            setIsAdmin(true);
+        }
+        else {
+            setIsAdmin(false);
+        }
+    };
+
+    useEffect(() => {
+        AdminAuthCheck();
+    }, [isLoggedIn]);
 
     useEffect(() => {
         // fetch user's cookie
@@ -98,7 +121,8 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         user,
         login,
         signup,
-        logout
+        logout,
+        isAdmin
     }
 
     return (

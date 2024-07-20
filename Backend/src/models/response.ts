@@ -51,7 +51,7 @@ const responseSchema = new Schema<IResponse>({
       type: Schema.Types.ObjectId,
       ref: 'CodingQuestion'
     },
-    CodignQuestion_Score: {
+    CodingQuestion_score: {
       type: Number,
       default : 0,
     }

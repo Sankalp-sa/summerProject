@@ -4,7 +4,8 @@ import Test from "../models/Test";
 import Question from "../models/Question";
 import StudentResponse from "../models/response";
 import { io } from "../app";
-import { User } from '../models/User';
+import { User } from "../models/User";
+import test from "node:test";
 
 export const createtest = async (
   req: Request,
@@ -12,12 +13,13 @@ export const createtest = async (
   next: NextFunction
 ) => {
   try {
-    const { start_time, end_time, name, duration } = req.body;
+    const { start_time, end_time, name, duration, Codingtest } = req.body;
     const new_test = new Test({
       test_name: name,
       start_time,
       end_time,
       duration,
+      Codingtest,
     });
     await new_test.save();
 
@@ -48,20 +50,18 @@ export const getSingleTest = async (req: Request, res: Response) => {
   try {
     let test = await Test.findById(req.params.id);
 
-    let Questions = []
+    let Questions = [];
 
-    for(let i=0; i<test.questionArray.length; i+=1){
-
+    for (let i = 0; i < test.questionArray.length; i += 1) {
       const question = await Question.findById(test.questionArray[i]);
 
-      Questions.push(question)
+      Questions.push(question);
     }
 
     return res.status(200).json({
       message: "Test",
-      data: {test, Questions},
+      data: { test, Questions },
     });
-
   } catch (error) {
     console.log(error);
   }
@@ -111,16 +111,21 @@ export const updatetest = async (req: Request, res: Response) => {
 
     // update the score of the students who had given the test
 
-    const students = await StudentResponse.find({ testId: id, given: true});
+    const students = await StudentResponse.find({ testId: id, given: true });
 
-    console.log(students)
+    console.log(students);
 
     for (let i = 0; i < students.length; i++) {
       let marks = 0;
       for (let j = 0; j < questionArray.length; j++) {
         const i_d = await Question.findById(questionArray[j]._id);
 
-        if (students[i].responses[j]?.answer != -1 && students[i].responses[j]?.answer != 0 && students[i].responses[j]?.answer != undefined && students[i].responses[j]?.answer != null) {
+        if (
+          students[i].responses[j]?.answer != -1 &&
+          students[i].responses[j]?.answer != 0 &&
+          students[i].responses[j]?.answer != undefined &&
+          students[i].responses[j]?.answer != null
+        ) {
           if (students[i].responses[j].answer == i_d.correctoption) {
             marks += 1;
           } else {
@@ -134,13 +139,11 @@ export const updatetest = async (req: Request, res: Response) => {
       students[i].score = marks;
 
       await students[i].save();
-
     }
 
     return res
       .status(200)
       .json({ ok: true, message: "Updated test successfully" });
-
   } catch (error) {
     console.log(error);
   }
@@ -157,7 +160,12 @@ export const calculatescore = async (
     let marks = 0;
     for (let i = 0; i < question_array.length; i++) {
       const i_d = await Question.findById(question_array[i].questionId);
-      if (question_array[i].answer != -1 && question_array[i].answer != 0 && question_array[i].answer != undefined && question_array[i].answer != null){
+      if (
+        question_array[i].answer != -1 &&
+        question_array[i].answer != 0 &&
+        question_array[i].answer != undefined &&
+        question_array[i].answer != null
+      ) {
         if (question_array[i].answer == i_d.correctoption) {
           marks += 1;
         } else {
@@ -167,12 +175,23 @@ export const calculatescore = async (
     }
     console.log(student, testid, question_array);
 
-    const existingResponse = await StudentResponse.findOne({ testId: testid, studentId: student });
+    const existingResponse = await StudentResponse.findOne({
+      testId: testid,
+      studentId: student,
+    });
+
+    // Add the codingScore from teh existing response
+
+    for (let i = 0; i < existingResponse.Coding_responses.length; i++) {
+      marks += existingResponse.Coding_responses[i]
+        .CodingQuestion_score as number;
+    }
 
     if (existingResponse) {
       existingResponse.score = marks;
       existingResponse.responses = question_array;
       existingResponse.given = true;
+      existingResponse.isStarted = false;
       await existingResponse.save();
     } else {
       const newResponse = new StudentResponse({
@@ -181,6 +200,7 @@ export const calculatescore = async (
         score: marks,
         responses: question_array,
         given: true,
+        isStarted: false,
       });
       await newResponse.save();
     }
@@ -196,22 +216,22 @@ export const calculatescore = async (
   }
 };
 
-
 export const getUserTests = async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
     const tests = await StudentResponse.find({ studentId: id });
 
-    let finalTests = []
+    let finalTests = [];
 
-    for(let i=0; i<tests.length; i++){
-
+    for (let i = 0; i < tests.length; i++) {
       const currTest = await Test.findById(tests[i].testId);
 
-      finalTests.push({
-        response: tests[i],
-        test: currTest,
-      })
+      if (currTest.sampleTest === false) {
+        finalTests.push({
+          response: tests[i],
+          test: currTest,
+        });
+      }
     }
 
     return res.status(200).json({
@@ -223,26 +243,29 @@ export const getUserTests = async (req: Request, res: Response) => {
   }
 };
 
-export const sorted_student = async(req:Request , res:Response) => {
-  try{
-    const id = await StudentResponse.find({given:1}).sort({score: -1}).limit(1);
-    for(let i=0;i<id.length;i++){
-          io.to(id[i]._id).emit("Sotlisting_message","Dear student , you are sortlisted , please confirm your seat");
+export const sorted_student = async (req: Request, res: Response) => {
+  try {
+    const id = await StudentResponse.find({ given: 1 })
+      .sort({ score: -1 })
+      .limit(1);
+    for (let i = 0; i < id.length; i++) {
+      io.to(id[i]._id).emit(
+        "Sotlisting_message",
+        "Dear student , you are sortlisted , please confirm your seat"
+      );
     }
     return res.status(200).json({
-      message : id,
+      message: id,
     });
+  } catch (error) {
+    console.log(error);
   }
-  catch(error){
-     console.log(error);
-  }
-  
-}
+};
 
 export const startTest = async (req: Request, res: Response) => {
   try {
     const { testId, studentId, startTime } = req.body;
-    
+
     const findResponse = await StudentResponse.findOne({ testId, studentId });
 
     if (findResponse) {
@@ -254,6 +277,7 @@ export const startTest = async (req: Request, res: Response) => {
         testId,
         studentId,
         isStarted: true,
+        startTime: startTime,
       });
       await newResponse.save();
     }
@@ -261,16 +285,14 @@ export const startTest = async (req: Request, res: Response) => {
     return res.status(200).json({
       message: "Test started successfully",
     });
-
   } catch (error) {
-
     console.log(error);
 
     return res.status(500).json({
       message: "An error occurred while starting the test",
     });
   }
-}
+};
 
 // get response of a student
 
@@ -284,29 +306,26 @@ export const getResponse = async (req: Request, res: Response) => {
       message: "Student response",
       data: response,
     });
-
   } catch (error) {
-
     return res.status(500).json({
       message: "An error occurred while fetching the response",
     });
-
   }
-}
+};
 
 export const getTestWithResponse = async (req: Request, res: Response) => {
-
   try {
     const { id } = req.params;
 
-    console.log("Test id here ",id)
+    console.log("Test id here ", id);
 
-    const test:any = await StudentResponse.find({ testId: id }).sort({ score: -1 });
+    const test: any = await StudentResponse.find({ testId: id }).sort({
+      score: -1,
+    });
 
-    let testData:any[] = []
+    let testData: any[] = [];
 
-    for(let i=0; i<test.length; i++){
-
+    for (let i = 0; i < test.length; i++) {
       const currTest = await Test.findById(test[i].testId);
 
       const student = await User.findById(test[i].studentId);
@@ -314,21 +333,85 @@ export const getTestWithResponse = async (req: Request, res: Response) => {
       testData.push({
         response: test[i],
         test: currTest,
-        student
-      })
+        student,
+      });
     }
 
     return res.status(200).json({
       message: "Test with response",
       data: testData,
     });
-
   } catch (error) {
-
     return res.status(500).json({
       message: "An error occurred while fetching the test with response",
     });
-
   }
+};
 
+// get Sample test
+
+export const getSampleTest = async (req: Request, res: Response) => {
+  try {
+    const { id } = req.params;
+
+    const sampleTests = await Test.find({ sampleTest: true });
+
+    // console.log("sample test")
+    // console.log(sampleTests)
+
+    for (let i = 0; i < sampleTests.length; i++) {
+      const existingResponse = await StudentResponse.findOne({
+        studentId: id,
+        testId: sampleTests[i]._id,
+      });
+
+      if (!existingResponse) {
+        const newResponse = new StudentResponse({
+          studentId: id,
+          testId: sampleTests[i]._id,
+        });
+
+        await newResponse.save();
+      }
+    }
+
+    const tests = await StudentResponse.find({ studentId: id });
+    let finalTests = [];
+
+    for (let i = 0; i < tests.length; i++) {
+      const currTest = await Test.findById(tests[i].testId);
+
+      if (currTest.sampleTest === true) {
+        finalTests.push({
+          response: tests[i],
+          test: currTest,
+        });
+      }
+    }
+
+    return res.status(200).json({
+      message: "User tests",
+      data: finalTests,
+    });
+  } catch (error) {
+    console.log(error);
+  }
+};
+
+export const getSingleResponse = async (req: Request, res: Response) => {
+
+  try {
+    const { id } = req.params;
+
+    const response = await StudentResponse.findOne({testId: id, studentId: req.body.userId}).populate("testId");
+
+    return res.status(200).json({
+      message: "Response",
+      data: response
+    })
+
+  } catch (error) {
+    console.log(error);
+  }
+  
 }

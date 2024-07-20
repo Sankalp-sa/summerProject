@@ -17,6 +17,7 @@ const CodingQuestionSchema = new mongoose.Schema({
         upperBound: { type: Number },
         lowerBound: { type: Number },
     }],
+    isPractice: { type: Boolean, default: false },
 });
 
 const CodingQuestion = mongoose.model('CodingQuestion', CodingQuestionSchema);

@@ -8,7 +8,7 @@ import moment from 'moment';
 import { useNavigate } from 'react-router-dom';
 import { useTime } from '@/Context/TimeContext';
 
-export default function ViewTests() {
+export default function ViewSampleTests() {
     const [tests, setTests] = useState([]);
     const [currentTime, setCurrentTime] = useState(moment());
     const { user } = useAuth();
@@ -19,9 +19,13 @@ export default function ViewTests() {
 
     const fetchAllTests = async () => {
 
+        if(!user){
+            return;
+        }
+
         try {
 
-            const res = await fetch(`${BACKEND_URL}/api/v1/test/getUserTest/${user.user.id}`, {
+            const res = await fetch(`${BACKEND_URL}/api/v1/test/getSampleTest/${user.user.id}`, {
                 method: 'GET',
                 headers: {
                     'Content-Type': 'application/json',
@@ -87,7 +91,7 @@ export default function ViewTests() {
         <div className='min-h-screen bg-muted/40'>
             <Navbar />
             <div>
-                <h2 className='text-center text-3xl font-bold mt-10'>Your Tests</h2>
+                <h2 className='text-center text-3xl font-bold mt-10'>Sample Tests</h2>
                 <div style={{ padding: '2% 15%' }}>
                     {tests?.length > 0 ?
                     (
@@ -103,24 +107,24 @@ export default function ViewTests() {
                                     <div className='flex'>
                                         <div>
                                             <h3>Test Name : {t.test?.test_name}</h3>
-                                            <p>Start Time: {moment(t.test?.start_time).format('YYYY-MM-DD HH:mm:ss')}</p>
-                                            <p>End Time: {moment(t.test?.end_time).format('YYYY-MM-DD HH:mm:ss')}</p>
+                                            <p>Start Time: {moment(t.test?.start_time).format('LLL')}</p>
+                                            <p>End Time: {moment(t.test?.end_time).format('LLL')}</p>
                                             {/* {The below t.test.duration is in seconds convert it to hr min ss format} */}
                                             <p>Duration: {moment.duration(t.test.duration, "seconds").hours()} hrs {moment.duration(t.test.duration, "seconds").minutes()} min {moment.duration(t.test.duration, "seconds").seconds()} sec</p>
                                         </div>
                                         <div className='ml-auto mt-auto'>
                                             {t.response.given ? (
-                                                <Button onClick={() => navigate(`/user/viewScore/${t.test._id}`)}> View Score </Button>
+                                                <Button size="sm" onClick={() => navigate(`/user/viewScore/${t.test._id}`)}> View Score </Button>
                                             ) :
                                                 (
                                                     t.response.isStarted ? (
-                                                        <Button onClick={() => navigate(`/user/test/${t.test._id}`)}>Continue Test</Button>
+                                                        <Button size="sm" onClick={() => navigate(`/user/test/${t.test._id}`)}>Continue Test</Button>
                                                     ) :
                                                         (
                                                             canStartTest(
                                                                 (t.test?.start_time),
                                                                 (t.test?.end_time)) ? (
-                                                                <Button onClick={() => handleStartTest(t.test._id)} disabled={isTestStarted}>Start Test</Button>
+                                                                <Button size="sm" onClick={() => handleStartTest(t.test._id)} disabled={isTestStarted}>Start Test</Button>
                                                             ) : (
                                                                 <p>
                                                                     Test will start in {getRemainingTime(t.test?.start_time)}
@@ -138,7 +142,7 @@ export default function ViewTests() {
                     ))
                     ) : (
                         <>
-                            <h2 className='text-center text-2xl mt-10'>No Tests Available</h2>
+                            <h2 className='text-center text-2xl mt-10'>No Sample Tests Available</h2>
                         </>
                     )}
                 </div>

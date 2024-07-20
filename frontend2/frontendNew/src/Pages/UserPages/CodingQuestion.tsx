@@ -5,18 +5,28 @@ import {
     ResizablePanelGroup,
 } from "@/components/ui/resizable"
 import CodeEditor from '@/components/CodeEditor'
-import { useParams } from 'react-router-dom'
+import { useNavigate, useParams } from 'react-router-dom'
 import { BACKEND_URL } from '@/config/config';
 import { CODE_SNIPPETS } from '@/Constants/snippet';
 import { toast } from '@/components/ui/use-toast';
+import SideBar from '@/components/SideBar';
+import { useTime } from '@/Context/TimeContext';
+import { ScrollArea } from '@/components/ui/scroll-area';
 
 export default function CodingQuestion() {
 
-    const { id } = useParams();
-
+    const { id, testid, codingTestId } = useParams();
     const [value, setValue] = useState<string>(CODE_SNIPPETS["javascript"]);
     const [language, setLanguage] = useState("javascript");
     const [questionDetails, setQuestionDetails] = useState<any>({})
+    
+    const [loader2, setLoader2] = useState(false);
+
+    const { timeLeft, isTestStarted, handleTestSubmit, setTimeLeft, setDuration, setIsTestStarted } = useTime();
+
+    const [mcqs, setMcqs] = useState<any[]>();
+
+    const navigate = useNavigate();
 
     const getQuestionDetails = async () => {
 
@@ -26,6 +36,7 @@ export default function CodingQuestion() {
             headers: {
                 'Content-Type': 'application/json',
             },
+            credentials: 'include'
         });
 
         const data = await res.json();
@@ -46,15 +57,75 @@ export default function CodingQuestion() {
 
     }, []);
 
+    const fetchQuestions = async () => {
+        const res = await fetch(`${BACKEND_URL}/api/v1/test/getSingleTest/${testid}`, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            credentials: 'include',
+        });
+
+        const data = await res.json();
+
+        setMcqs(data.data.Questions);
+    };
+
+    useEffect(() => {
+
+        fetchQuestions();
+
+    }, [])
+
+    const handleTimpUp = async () => {
+
+        if (timeLeft === 'Time Up') {
+
+            if (testid) {
+                handleTestSubmit(mcqs, testid);
+            }
+
+            toast({
+                title: 'Time Up',
+                description: 'Time is up for the test.',
+            });
+
+            setTimeLeft("");
+            setDuration(0);
+            setIsTestStarted(false);
+
+            localStorage.removeItem('timeLeft');
+            localStorage.removeItem('isTimeUp');
+            localStorage.removeItem('duration');
+            localStorage.removeItem('startTime');
+            localStorage.removeItem('userAnswers')
+            localStorage.setItem('isTestStarted', 'false');
+
+            navigate("/user/myTests")
+
+        }
+
+    }
+
+    useEffect(() => {
+        handleTimpUp();
+    }, [timeLeft]);
+
+
     const onSubmit = async () => {
+
+        setLoader2(true);
 
         const res = await fetch(`${BACKEND_URL}/api/v1/codingQuestion/submit/`, {
             method: "POST",
             headers: {
                 'Content-Type': 'application/json',
             },
-            body: JSON.stringify({ language, code: value, questionId: id })
+            credentials: 'include',
+            body: JSON.stringify({ language, code: value, questionId: id, testid })
         })
+
+        setLoader2(false);
 
         const data = await res.json();
 
@@ -62,25 +133,25 @@ export default function CodingQuestion() {
 
         const result = data.data
 
-        let f:number = 0;
+        let f: number = 0;
 
-        for(let i=0; i<result.testCaseResult.length; i+=1) {
-            
-            if(result.testCaseResult[i].result === "Failed"){
+        for (let i = 0; i < result.testCaseResult.length; i += 1) {
+
+            if (result.testCaseResult[i].result === "Failed") {
                 f = -1
                 break
             }
 
         }
 
-        if(f == -1){
+        if (f == -1) {
             toast({
                 variant: "destructive",
                 title: "Some test cases failed try again",
                 description: "Please check your code and try again"
-              });
+            });
         }
-        else{
+        else {
             toast({
                 title: "All test cases passed",
                 description: "Congratulations"
@@ -90,10 +161,11 @@ export default function CodingQuestion() {
     }
 
     return (
-        <div>
+        <div className='flex'>
+            <SideBar testid={testid} codingTestId={codingTestId} />
             <ResizablePanelGroup
                 direction="horizontal"
-                className="min-h-screen rounded-lg border flex"
+                className="min-h-screen rounded-lg border"
             >
                 <ResizablePanel defaultSize={30}>
                     <div className="p-5">
@@ -128,8 +200,8 @@ export default function CodingQuestion() {
                     </div>
                 </ResizablePanel>
                 <ResizableHandle withHandle />
-                <ResizablePanel defaultSize={70}>
-                    <CodeEditor language={language} setLanguage={setLanguage} value={value} setValue={setValue} onSubmit={onSubmit} />
+                <ResizablePanel defaultSize={70} className='bg-muted/40'>
+                    <CodeEditor language={language} setLanguage={setLanguage} value={value} setValue={setValue} onSubmit={onSubmit} loader2={loader2} />
                 </ResizablePanel>
             </ResizablePanelGroup>
         </div>

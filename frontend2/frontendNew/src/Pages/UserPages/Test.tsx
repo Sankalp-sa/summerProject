@@ -15,22 +15,12 @@ import { useParams } from 'react-router-dom';
 import { BACKEND_URL } from '@/config/config';
 import { Pagination, PaginationContent, PaginationItem, PaginationLink, PaginationNext, PaginationPrevious } from '@/components/ui/pagination';
 import { useEffect, useState } from 'react';
-import moment from 'moment';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
 import { useNavigate } from 'react-router-dom';
-import {
-    AlertDialog,
-    AlertDialogAction,
-    AlertDialogCancel,
-    AlertDialogContent,
-    AlertDialogDescription,
-    AlertDialogFooter,
-    AlertDialogHeader,
-    AlertDialogTitle,
-    AlertDialogTrigger,
-} from "@/components/ui/alert-dialog"
+import { useTime } from '@/Context/TimeContext';
+import SideBar from '@/components/SideBar';
 
 
 // Question schema
@@ -57,14 +47,13 @@ export default function Test() {
 
     const navigate = useNavigate();
 
+    const { timeLeft, isTimeUp, isTestStarted, startTime, setStartTime, setDuration, setIsTestStarted, setTimeLeft, setIsTimeUp } = useTime();
+
     const [questions, setQuestions] = useState<Question[]>([]);
-    const [userAnswers, setUserAnswers] = useState<number[]>([]);
+    const [userAnswers, setUserAnswers] = useState<number[]>(JSON.parse(localStorage.getItem('userAnswers') || '[]'));
     const [currentPage, setCurrentPage] = useState(1);
-    const [startTime, setStartTime] = useState<Date>();
     const [name, setName] = useState('');
-    const [timeLeft, setTimeLeft] = useState<string>('');
-    const [duration, setDuration] = useState<number>(0);
-    const [isTimeUp, setIsTimeUp] = useState<boolean>(false);
+    const [codingTestId, setCodingTestId] = useState<string>('');
 
     const questionsPerPage = 1;
     const paginationSize = 5;
@@ -92,6 +81,7 @@ export default function Test() {
         setName(data.data.test.test_name);
         setDuration(data.data.test.duration);
         setQuestions(data.data.Questions);
+        setCodingTestId(data.data.test.Codingtest);
     };
 
     const getResponse = async () => {
@@ -107,7 +97,11 @@ export default function Test() {
 
         console.log(data.data);
 
-        setStartTime(new Date(data.data[0].startTime));
+        if (!localStorage.getItem('startTime')) {
+            setStartTime(new Date(data.data[0].startTime));
+            setIsTestStarted(true);
+        }
+
     };
 
     useEffect(() => {
@@ -117,51 +111,42 @@ export default function Test() {
         }
     }, [user]);
 
-    useEffect(() => {
-        if (startTime && duration) {
-            const interval = setInterval(async () => {
-                const now = moment();
-                const start = moment(startTime);
-                const end = start.add(duration, 'seconds');
-                const diff = moment.duration(end.diff(now));
+    const handleTimpUp = async () => {
 
-                // console.log(diff.asSeconds())
+        if (timeLeft === 'Time Up') {
+            await onSubmit(form.getValues());
 
-                if (diff.asSeconds() <= 0) {
+            toast({
+                title: 'Time Up',
+                description: 'Time is up for the test.',
+            });
 
-                    setTimeLeft('Time Up');
-                    setIsTimeUp(true);
+            setTimeLeft("");
+            setDuration(0);
+            setIsTestStarted(false);
 
-                    await onSubmit(form.getValues())
+            localStorage.removeItem('timeLeft');
+            localStorage.removeItem('isTimeUp');
+            localStorage.removeItem('duration');
+            localStorage.removeItem('startTime');
+            localStorage.removeItem('userAnswers');
+            localStorage.setItem('isTestStarted', 'false');
 
-                    toast({
-                        title: 'Time Up',
-                        description: 'Time is up for the test.',
-                    });
+            navigate("/user/myTests")
 
-                    navigate("/user/myTests")
-
-                    clearInterval(interval);
-                    return;
-
-                }
-
-                const days = Math.floor(diff.asDays());
-                const hours = diff.hours();
-                const minutes = diff.minutes();
-                const seconds = diff.seconds();
-
-                setTimeLeft(`${days}d ${hours}h ${minutes}m ${seconds}s`);
-
-            }, 1000);
-
-            return () => clearInterval(interval);
         }
-    }, [startTime, duration]);
+
+    }
+
+    useEffect(() => {
+        handleTimpUp();
+    }, [timeLeft]);
+
+    useEffect(() => {
+        localStorage.setItem('userAnswers', JSON.stringify(userAnswers));
+    }, [userAnswers]);
 
     async function onSubmit(data: z.infer<typeof formSchema>) {
-
-        console.log("hello submit here")
 
         console.log(data);
 
@@ -229,154 +214,135 @@ export default function Test() {
     const endPage = Math.min(currentPaginationPage * paginationSize, totalPages);
 
     return (
-        <div className="bg-muted/40">
-            <Navbar />
-            <main className="grid flex-1 gap-4 overflow-auto p-4 md:grid-cols-2 lg:grid-cols-3">
-                <div
-                    className="relative hidden flex-col items-start gap-8 md:flex border border-1 border-inherit shadow-sm rounded-md bg-white" x-chunk="dashboard-03-chunk-0"
-                >
-                    <div className="p-4">
-                        <h1 className="text-3xl font-bold ps-3 pb-3">Questions</h1>
-                        <div className="space-y-2">
-                            {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) =>
-                                currentPage === page ? (
-                                    <PaginationLink
-                                        key={page}
-                                        className="m-2 rounded-full bg-blue-500 text-white"
-                                    >
-                                        {page}
-                                    </PaginationLink>
-                                ) : (
-                                    <PaginationLink
-                                        key={page}
-                                        href="#"
-                                        onClick={() => handlePageChange(page)}
-                                        className="m-2 rounded-full bg-white border border-gray-300 hover:bg-gray-100 transition-colors duration-200"
-                                    >
-                                        {page}
-                                    </PaginationLink>
-                                )
-                            )}
-                        </div>
-                    </div>
-                </div>
-                <div className="relative flex h-full min-h-[50vh] flex-col rounded-md bg-muted/50 p-4 lg:col-span-2 border border-1 border-inherit shadow-sm">
-                    <div className="flex justify-between items-center">
-                        <h1 className="text-3xl font-bold mb-6">Test : {name}</h1>
-                        <div className="ml-auto">
-                            <Button className='me-5' variant="outline" onClick={() => navigate(`/user/startTest/${id}`, { state: { studentId: user.user.id } })}>See Instructions</Button>
-                            <AlertDialog>
-                                <AlertDialogTrigger asChild>
-                                    <Button>Submit</Button>
-                                </AlertDialogTrigger>
-                                <AlertDialogContent>
-                                    <AlertDialogHeader>
-                                        <AlertDialogTitle className="text-xl">Are you sure you want submit the test ?</AlertDialogTitle>
-                                        <AlertDialogDescription className='text-base'>
-                                            {/* show the number on question answered by the user out of the total quesiton and other useful information to the user */}
-                                            <p>Questions Answered: {userAnswers.filter((answer) => answer !== 0).length}</p>
-                                            <p>Questions Unanswered: {questions.length - userAnswers.length}</p>
-                                            <p>Total Questions: {questions.length}</p>
-                                            <p>Time Left: {timeLeft}</p>
-                                        </AlertDialogDescription>
-                                    </AlertDialogHeader>
-                                    <AlertDialogFooter>
-                                        <AlertDialogCancel>Cancel</AlertDialogCancel>
-                                        <AlertDialogAction onClick={async () => await onSubmit(form.getValues())}>Submit Test</AlertDialogAction>
-                                    </AlertDialogFooter>
-                                </AlertDialogContent>
-                            </AlertDialog>
-
-                        </div>
-                    </div>
-
-                    <p className='mb-3 font-semibold'> Time Left: <span style={{ color: "#2563EB" }}>{timeLeft}</span></p>
-                    <Form {...form}>
-                        <form
-                            className="w-full min-h-[70vh] bg-white p-6 rounded-md flex flex-col justify-between border border-1 border-inherit shadow-sm"
-                        >
-                            <div>
-                                {questions.map((question, index) =>
-                                    index >= (currentPage - 1) * questionsPerPage &&
-                                    index < currentPage * questionsPerPage && (
-                                        <FormField
-                                            key={index}
-                                            control={form.control}
-                                            name={`answers.${index}`}
-                                            render={({ field }) => (
-                                                <FormItem className="space-y-3">
-                                                    <div className="flex justify-between items-center">
-                                                        <FormLabel className="text-lg font-medium">
-                                                            {question.question}
-                                                        </FormLabel>
-                                                        <button
-                                                            type="button"
-                                                            className="text-blue-500 underline"
-                                                            onClick={() => handleClearAnswer(index)}
-                                                        >
-                                                            Clear
-                                                        </button>
-                                                    </div>
-                                                    <FormControl>
-                                                        <RadioGroup
-                                                            onValueChange={(value) => {
-                                                                field.onChange(Number(value));
-                                                                const updatedAnswers = [...userAnswers];
-                                                                updatedAnswers[index] = Number(value);
-                                                                setUserAnswers(updatedAnswers);
-                                                            }}
-                                                            value={field.value?.toString()}
-                                                            className="flex flex-col space-y-1"
-                                                        >
-                                                            {['option1', 'option2', 'option3', 'option4'].map(
-                                                                (option, idx) =>
-                                                                    question[option as keyof Question] && (
-                                                                        <FormItem
-                                                                            key={idx}
-                                                                            className="flex items-center space-x-3 space-y-0"
-                                                                        >
-                                                                            <FormControl>
-                                                                                <RadioGroupItem
-                                                                                    value={(idx + 1).toString()}
-                                                                                />
-                                                                            </FormControl>
-                                                                            <FormLabel className="font-normal">
-                                                                                {question[option as keyof Question]}
-                                                                            </FormLabel>
-                                                                        </FormItem>
-                                                                    )
-                                                            )}
-                                                        </RadioGroup>
-                                                    </FormControl>
-                                                    <FormMessage />
-                                                </FormItem>
-                                            )}
-                                        />
+        <>
+            <div className="bg-muted/40 flex">
+                <SideBar testid={id} codingTestId={codingTestId}/>
+                <main className="grid flex-1 gap-4 overflow-auto p-4 md:grid-cols-2 lg:grid-cols-3">
+                    <div
+                        className="relative hidden flex-col items-start gap-8 md:flex border border-1 border-inherit shadow-sm rounded-md bg-white" x-chunk="dashboard-03-chunk-0"
+                    >
+                        <div className="p-4">
+                            <h1 className="text-3xl font-bold ps-3 pb-3">Questions</h1>
+                            <div className="space-y-2">
+                                {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) =>
+                                    currentPage === page ? (
+                                        <PaginationLink
+                                            key={page}
+                                            className="m-2 rounded-full bg-blue-500 text-white"
+                                        >
+                                            {page}
+                                        </PaginationLink>
+                                    ) : (
+                                        <PaginationLink
+                                            key={page}
+                                            href="#"
+                                            onClick={() => handlePageChange(page)}
+                                            className="m-2 rounded-full bg-white border border-gray-300 hover:bg-gray-100 transition-colors duration-200"
+                                        >
+                                            {page}
+                                        </PaginationLink>
                                     )
                                 )}
                             </div>
-                            <div className="mt-8 flex justify-between">
-                                <Pagination>
-                                    <PaginationContent className="flex items-center">
-                                        <PaginationItem className='border-solid border-2 border-grey rounded-md'>
-                                            {currentPage !== 1 && (
-                                                <PaginationPrevious onClick={() => handlePageChange(currentPage - 1)} />
-                                            )}
-                                        </PaginationItem>
-                                        <PaginationItem className='border-solid border-2 border-grey rounded-md'>
-                                            {currentPage !== totalPages && (
-                                                <PaginationNext onClick={() => handlePageChange(currentPage + 1)} />
-                                            )}
-                                        </PaginationItem>
-                                    </PaginationContent>
-                                </Pagination>
+                        </div>
+                    </div>
+                    <div className="relative flex h-full min-h-[50vh] flex-col rounded-md bg-muted/50 p-4 lg:col-span-2 border border-1 border-inherit shadow-sm">
+                        <div className="flex justify-between items-center">
+                            <h1 className="text-3xl font-bold mb-6">Test : {name}</h1>
+                            <div className="ml-auto">
+                                <Button className='me-5' variant="outline" onClick={() => navigate(`/user/startTest/${id}`, { state: {studentId : user?.user?.id} })}>See Instructions</Button>
+                                <Button onClick={() => navigate(`/user/viewCodingQuestions/${codingTestId}/${id}`)}>Go to Coding Test</Button>
                             </div>
-                        </form>
-                    </Form>
-                </div>
+                        </div>
 
-            </main>
+                        <p className='mb-3 font-semibold'> Time Left: <span style={{ color: "#2563EB" }}>{timeLeft}</span></p>
+                        <Form {...form}>
+                            <form
+                                className="w-full min-h-[70vh] bg-white p-6 rounded-md flex flex-col justify-between border border-1 border-inherit shadow-sm"
+                            >
+                                <div>
+                                    {questions.map((question, index) =>
+                                        index >= (currentPage - 1) * questionsPerPage &&
+                                        index < currentPage * questionsPerPage && (
+                                            <FormField
+                                                key={index}
+                                                control={form.control}
+                                                name={`answers.${index}`}
+                                                render={({ field }) => (
+                                                    <FormItem className="space-y-3">
+                                                        <div className="flex justify-between items-center">
+                                                            <FormLabel className="text-lg font-medium">
+                                                                {question.question}
+                                                            </FormLabel>
+                                                            <button
+                                                                type="button"
+                                                                className="text-blue-500 underline"
+                                                                onClick={() => handleClearAnswer(index)}
+                                                            >
+                                                                Clear
+                                                            </button>
+                                                        </div>
+                                                        <FormControl>
+                                                            <RadioGroup
+                                                                onValueChange={(value) => {
+                                                                    field.onChange(Number(value));
+                                                                    const updatedAnswers = [...userAnswers];
+                                                                    updatedAnswers[index] = Number(value);
+                                                                    setUserAnswers(updatedAnswers);
+                                                                }}
+                                                                value={field.value?.toString()}
+                                                                className="flex flex-col space-y-1"
+                                                            >
+                                                                {['option1', 'option2', 'option3', 'option4'].map(
+                                                                    (option, idx) =>
+                                                                        question[option as keyof Question] && (
+                                                                            <FormItem
+                                                                                key={idx}
+                                                                                className="flex items-center space-x-3 space-y-0"
+                                                                            >
+                                                                                <FormControl>
+                                                                                    <RadioGroupItem
+                                                                                        value={(idx + 1).toString()}
+                                                                                    />
+                                                                                </FormControl>
+                                                                                <FormLabel className="font-normal">
+                                                                                    {question[option as keyof Question]}
+                                                                                </FormLabel>
+                                                                            </FormItem>
+                                                                        )
+                                                                )}
+                                                            </RadioGroup>
+                                                        </FormControl>
+                                                        <FormMessage />
+                                                    </FormItem>
+                                                )}
+                                            />
+                                        )
+                                    )}
+                                </div>
+                                <div className="mt-8 flex justify-between">
+                                    <Pagination>
+                                        <PaginationContent className="flex items-center">
+                                            <PaginationItem className='border-solid border-2 border-grey rounded-md'>
+                                                {currentPage !== 1 && (
+                                                    <PaginationPrevious onClick={() => handlePageChange(currentPage - 1)} />
+                                                )}
+                                            </PaginationItem>
+                                            <PaginationItem className='border-solid border-2 border-grey rounded-md'>
+                                                {currentPage !== totalPages && (
+                                                    <PaginationNext onClick={() => handlePageChange(currentPage + 1)} />
+                                                )}
+                                            </PaginationItem>
+                                        </PaginationContent>
+                                    </Pagination>
+                                </div>
+                            </form>
+                        </Form>
+                    </div>
 
-        </div>
+                </main>
+
+            </div>
+        </>
     );
 }
